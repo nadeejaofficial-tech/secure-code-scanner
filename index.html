@@ -31,7 +31,7 @@ aside p{color:var(--muted);font-size:12.5px;margin:6px 0 26px}
 .footnote{font-size:11px;color:var(--muted);line-height:1.6;border-top:1px solid var(--line);padding-top:12px;margin-top:20px}
 main{padding:40px 44px;max-width:1000px}
 .hero{margin-bottom:30px}
-.hero h1{font-size:32px;line-height:1.15;max-width:15ch}
+.hero h1{font-size:32px;line-height:1.15;max-width:17ch}
 .hero p{max-width:60ch;color:var(--muted);font-size:15px;margin-top:10px}
 .contexts{display:flex;gap:6px;flex-wrap:wrap;margin:26px 0 20px;border-bottom:1px solid var(--line);padding-bottom:16px}
 .ctxbtn{border:1px solid var(--line);background:var(--paper);padding:9px 13px;border-radius:99px;cursor:pointer;font:500 13px "Public Sans";color:var(--muted)}
@@ -51,6 +51,8 @@ textarea:focus{border-color:var(--safe)}
 .flag{background:rgba(160,79,55,.22);border-radius:3px;padding:0 1px;font-weight:600}
 .explain{margin-top:14px;font-size:13.5px;color:#3c4a37;line-height:1.65}
 .explain b{color:var(--ink)}
+.typenote{margin-top:10px;font-size:12.5px;color:#6b5311;background:var(--warn-bg);border:1px solid #e3d6ac;border-radius:8px;padding:9px 11px;line-height:1.55}
+.typenote code{background:rgba(0,0,0,.05);padding:0 3px;border-radius:3px}
 .snippet{margin-top:10px;background:#1d271c;color:#dbe6d6;border-radius:9px;padding:14px;font:12.5px/1.6 "IBM Plex Mono";overflow-x:auto}
 .snippet .cm{color:#8a9a83}
 .stat-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
@@ -64,6 +66,7 @@ textarea:focus{border-color:var(--safe)}
 .refcard h3{font-size:14.5px;margin-bottom:6px}
 .refcard .principle{color:var(--safe);font:600 12px "Public Sans";margin-bottom:8px}
 .refcard p{color:var(--muted);font-size:13px;line-height:1.6;margin:0}
+.section-heading{font-size:19px;margin:34px 0 14px}
 .page{display:none}.page.active{display:block}
 .findcard{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:16px}
 .findhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
@@ -71,6 +74,11 @@ textarea:focus{border-color:var(--safe)}
 .badge{font:600 11px "Public Sans";border-radius:99px;padding:4px 10px;white-space:nowrap}
 .cspopt{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--paper2)}
 .cspopt small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.cspfield{display:block;margin-top:14px;color:var(--muted);font-size:11.5px}
+.cspinput{width:100%;padding:9px;margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--paper2);color:var(--ink);font:13px "IBM Plex Mono";outline:0}
+.quizopt{border:1px solid var(--line);border-radius:9px;padding:11px 13px;text-align:left;background:var(--paper2);cursor:pointer;font:500 13.5px "Public Sans";color:var(--ink)}
+.quizopt:hover:not(:disabled){border-color:var(--safe)}
+.quizopt:disabled{cursor:default}
 @media(max-width:880px){.shell{grid-template-columns:1fr}aside{position:static;height:auto}.workbench,.refgrid{grid-template-columns:1fr}main{padding:26px 20px}}
 </style>
 </head>
@@ -85,10 +93,11 @@ textarea:focus{border-color:var(--safe)}
   <button class="navbtn active" data-page="workbench" onclick="goPage('workbench',this)">Context playground</button>
   <button class="navbtn" data-page="scanner" onclick="goPage('scanner',this)">Code scanner</button>
   <button class="navbtn" data-page="csp" onclick="goPage('csp',this)">CSP builder</button>
+  <button class="navbtn" data-page="quiz" onclick="goPage('quiz',this)">Learn: quiz</button>
   <button class="navbtn" data-page="reference" onclick="goPage('reference',this)">Vulnerability reference</button>
  </div>
- <div class="footnote">Runs entirely in your browser, nothing is sent anywhere. Nothing here builds or executes working exploit code — only defensive transforms and pattern-matching over text you provide.</div>
- 
+ <div class="footnote">Runs entirely in your browser, nothing is sent anywhere. Nothing here builds or executes working exploit code — only defensive transforms and heuristic pattern-matching over text you provide.</div>
+
  <!-- Developer Branding Section -->
  <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--line); text-align: center;">
      <div style="font-size: 11px; color: var(--muted); margin-bottom: 8px;">Developed by <b style="color: var(--ink);">Nadeeja</b></div>
@@ -97,14 +106,14 @@ textarea:focus{border-color:var(--safe)}
          <a href="https://web.facebook.com/nadeeja.hirun.2025" target="_blank" style="font-size: 11px; color: var(--safe); text-decoration: none; font-weight: 600;">Facebook</a>
      </div>
  </div>
- 
+
 </aside>
 <main>
 
 <section id="workbench" class="page active">
  <div class="hero">
   <h1>The fix depends on where the string lands.</h1>
-  <p>The same piece of user input needs a different defense depending on where it ends up. Pick a destination context and see why, character by character.</p>
+  <p>The same piece of user input needs a different defense depending on where it ends up. Pick a destination context — from a page body to a log line — and see why, character by character.</p>
  </div>
 
  <div class="contexts" id="contexts"></div>
@@ -127,8 +136,9 @@ textarea:focus{border-color:var(--safe)}
     <div class="panellabel danger"><span>⚠ If concatenated directly</span></div>
     <div id="unsafeOut">—</div>
    </div>
+   <div class="typenote" id="typeNote" style="display:none"></div>
    <div class="panel safe">
-    <div class="panellabel safe"><span>✓ Defended</span><button class="copybtn" onclick="copyText('safeOut')">copy</button></div>
+    <div class="panellabel safe"><span>✓ Defended</span><button class="copybtn" onclick="copyText('safeOut',this)">copy</button></div>
     <div id="safeOut">—</div>
    </div>
    <div class="explain" id="explainOut"></div>
@@ -144,7 +154,7 @@ textarea:focus{border-color:var(--safe)}
  </div>
  <div class="card">
   <h2>Paste code</h2>
-  <div class="sub">Any language — rules cover common risky calls across JS, Node, and Python.</div>
+  <div class="sub">Any language — rules cover common risky calls across JS, Node, Python, PHP, and Java.</div>
   <textarea id="scanIn" style="min-height:170px" placeholder="paste a function, route handler, or script here..." oninput="scan()"></textarea>
   <div class="stat-row"><div class="stat"><b id="scanCount">0</b> findings</div></div>
  </div>
@@ -161,8 +171,10 @@ textarea:focus{border-color:var(--safe)}
    <h2>Sources</h2>
    <div class="sub">Toggle what this page legitimately needs.</div>
    <div id="cspOpts"></div>
-   <label style="display:block;margin-top:14px;color:#788698;font-size:11.5px">Additional trusted script domain (optional)</label>
-   <input id="cspExtra" placeholder="https://cdn.example.com" style="width:100%;padding:9px;margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--paper2);color:var(--ink);font:13px 'IBM Plex Mono';outline:0" oninput="buildCSP()">
+   <label class="cspfield">Additional trusted script domains (optional, space or comma separated)</label>
+   <input id="cspExtra" class="cspinput" placeholder="https://cdn.example.com https://analytics.example.com" oninput="buildCSP()">
+   <label class="cspfield">Violation report endpoint (optional)</label>
+   <input id="cspReport" class="cspinput" placeholder="/csp-report" oninput="buildCSP()">
   </div>
   <div class="card">
    <h2>Generated header</h2>
@@ -173,12 +185,24 @@ textarea:focus{border-color:var(--safe)}
  </div>
 </section>
 
+<section id="quiz" class="page">
+ <div class="hero">
+  <h1>Test what actually sticks.</h1>
+  <p>Eight scenario questions pulled from the contexts and fixes above. Guess before you check the explanation.</p>
+ </div>
+ <div class="card" id="quizCard" style="max-width:640px"></div>
+</section>
+
 <section id="reference" class="page">
  <div class="hero">
   <h1>Common injection classes, and the actual fix.</h1>
   <p>Not payload lists — the defensive principle that closes each class of bug, so you recognize the fix pattern anywhere you meet it.</p>
  </div>
  <div class="refgrid" id="refgrid"></div>
+
+ <h2 class="section-heading">Framework defaults — what's safe out of the box</h2>
+ <p style="color:var(--muted);font-size:13.5px;margin-top:-6px;margin-bottom:16px;max-width:70ch">Most modern frameworks auto-escape by default. The risk is usually the explicit escape hatch, reached for out of habit rather than a reviewed decision.</p>
+ <div class="refgrid" id="frameworkgrid"></div>
 </section>
 
 </main>
@@ -196,6 +220,9 @@ function sanitizeFilename(s){
 function sanitizeHeaderValue(s){
  let c=s.replace(/[\r\n]/g,'');
  return c || '(empty after stripping CR/LF)';
+}
+function sanitizeLogLine(s){
+ return s.replace(/[\r\n]/g,'\\n');
 }
 
 const CTX = {
@@ -244,11 +271,11 @@ const url = \`/search?q=\${encodeURIComponent(userQuery)}\`;`
  },
  header:{
   label:'HTTP header value', desc:'Text placed into a response header, e.g. a filename or redirect target.',
-  placeholder:'report.pdf\r\nSet-Cookie: session=evil',
+  placeholder:'report.pdf\nSet-Cookie: session=evil',
   before:'Content-Disposition: attachment; filename=', after:'',
-  flagChars:['\r','\n',':'],
+  flagChars:['\n',':'],
   safe:s=>sanitizeHeaderValue(s),
-  explain:'<b>Header values must never contain a raw line break.</b> A CR/LF sequence reaching a raw header-writing call lets an attacker inject a second header — including a forged <code>Set-Cookie</code> — or split the response entirely. Strip or reject line breaks in anything bound for a header.',
+  explain:'<b>Header values must never contain a raw line break.</b> A newline reaching a raw header-writing call lets an attacker inject a second header — including a forged <code>Set-Cookie</code> — or split the response entirely. (Browsers normalize a textarea\'s value to plain <code>\\n</code>, so you won\'t see a literal <code>\\r</code> in this demo — but a bare LF alone is enough to trigger the same class of bug on many servers.) Strip or reject any line break in anything bound for a header.',
   code:`<span class="cm">// unsafe: raw value written into a header</span>
 res.setHeader('Content-Disposition', \`attachment; filename=\${filename}\`);
 
@@ -270,17 +297,46 @@ db.query("SELECT * FROM users WHERE name = '" + name + "'");
 db.query("SELECT * FROM users WHERE name = ?", [name]);`
  },
  nosql:{
-  label:'NoSQL query (e.g. MongoDB)', desc:'A value used to build a NoSQL filter object.',
+  label:'NoSQL filter (type confusion)', desc:'The raw value of a field as it arrives in a parsed JSON request body.',
   placeholder:'{"$ne": null}',
   before:'db.users.find({ username: ', after:' })',
   flagChars:['$','{','}'],
-  safe:s=>`db.users.find({ username: String(${JSON.stringify(s)}) })`,
-  explain:'<b>Type matters as much as content.</b> If a client can send JSON, a field expected to be a plain string can arrive as an object like <code>{"$ne": null}</code> instead — some drivers will interpret that as a query operator, silently bypassing the intended filter. Coerce to the expected type before using a value in a query.',
+  note:s=>{
+   if(!s) return null;
+   try{
+    const parsed=JSON.parse(s);
+    const t=Array.isArray(parsed)?'array':typeof parsed;
+    return (t==='object'&&parsed!==null)
+     ? `Parses as an <b>object</b>, not a string — some drivers treat keys like <code>$ne</code> / <code>$gt</code> / <code>$where</code> as query operators, silently changing what the filter matches.`
+     : `Parses as a <b>${t}</b> — still worth coercing explicitly rather than trusting the client's type.`;
+   }catch(e){
+    return `Not valid JSON — this would arrive as the plain string <code>${escapeHtml(s)}</code>.`;
+   }
+  },
+  safe:s=>{
+   let parsed; try{parsed=JSON.parse(s)}catch(e){parsed=s}
+   const shape = (typeof parsed==='object'&&parsed!==null) ? JSON.stringify(parsed) : String(parsed);
+   return `db.users.find({ username: String(value) })\n// value is coerced to a string first, so it can never act as a query operator\n// (the raw value received was: ${shape})`;
+  },
+  explain:'<b>The bug here isn\'t missing punctuation — it\'s an unchecked type.</b> If a field expected to be a plain string can instead arrive as a parsed object (e.g. <code>{"$ne": null}</code>), some drivers interpret object keys like <code>$ne</code>, <code>$gt</code>, or <code>$where</code> as query operators. Coerce every value to its expected primitive type before it reaches a query, and validate the request shape against a schema.',
   code:`<span class="cm">// unsafe: whatever shape the client sent is used directly</span>
 db.users.find({ username: req.body.username });
 
 <span class="cm">// safe: force the expected primitive type first</span>
 db.users.find({ username: String(req.body.username) });`
+ },
+ json:{
+  label:'JSON string value', desc:'Text inserted as a string value inside a JSON payload.',
+  placeholder:'She said "hi" and used a backslash \\ here',
+  before:'{"comment": "', after:'"}',
+  flagChars:['"','\\','\n'],
+  safe:s=>JSON.stringify({comment:s}),
+  explain:'<b>Never build JSON by hand-concatenating strings.</b> An unescaped quote or backslash in the value breaks the JSON structure before it ever reaches a parser. A real JSON encoder escapes every value correctly — quotes, backslashes, and control characters included.',
+  code:`<span class="cm">// unsafe: building JSON as a string by hand</span>
+const body = '{"comment": "' + comment + '"}';
+
+<span class="cm">// safe: let a real JSON encoder handle escaping</span>
+const body = JSON.stringify({ comment });`
  },
  filename:{
   label:'Filesystem path', desc:'Text used to build a file path, e.g. an upload or export name.',
@@ -309,17 +365,30 @@ exec(\`convert \${filename} out.png\`);
 
 <span class="cm">// safe: arguments passed directly, no shell involved</span>
 execFile('convert', [filename, 'out.png']);`
+ },
+ logline:{
+  label:'Log entry', desc:'Text written into an application log line, e.g. a username on login.',
+  placeholder:'alice\n[INFO] login success for admin',
+  before:'[INFO] login attempt: ', after:'',
+  flagChars:['\n','\r'],
+  safe:s=>sanitizeLogLine(s),
+  explain:'<b>A log line is a trust boundary too.</b> Anyone who can put a line break into a logged value can forge what looks like a separate, legitimate log entry — including a fake success message — which can mislead whoever reads that log during an investigation. Escape or strip line breaks before writing untrusted values into logs.',
+  code:`<span class="cm">// unsafe: a newline in the username forges a second log line</span>
+log.info('login attempt: ' + username);
+
+<span class="cm">// safe: escape line breaks so the value can never span lines</span>
+log.info('login attempt: ' + username.replace(/[\\r\\n]/g, '\\\\n'));`
  }
 };
 
-let current = localStorage.getItem('sanitize_ctx') && CTX[localStorage.getItem('sanitize_ctx')] ? localStorage.getItem('sanitize_ctx') : 'htmlBody';
+let current = 'htmlBody';
 const $=id=>document.getElementById(id);
 
 function buildNav(){
  $('contexts').innerHTML=Object.entries(CTX).map(([k,c])=>
   `<button class="ctxbtn${k===current?' active':''}" onclick="setCtx('${k}')">${c.label}</button>`).join('');
 }
-function setCtx(k){current=k;localStorage.setItem('sanitize_ctx',k);$('raw').value=CTX[k].placeholder;buildNav();render()}
+function setCtx(k){current=k;$('raw').value=CTX[k].placeholder;buildNav();render()}
 function render(){
  const c=CTX[current], s=$('raw').value;
  $('ctxDesc').textContent=c.desc;
@@ -337,11 +406,35 @@ function render(){
  }
  box.appendChild(document.createTextNode(c.after));
 
+ const note=$('typeNote');
+ const noteText = c.note ? c.note(s) : null;
+ if(noteText){ note.style.display='block'; note.innerHTML=noteText; }
+ else { note.style.display='none'; }
+
  $('safeOut').textContent = s ? c.safe(s) : '—';
  $('explainOut').innerHTML=c.explain;
  $('codeOut').innerHTML=c.code;
 }
-function copyText(id){navigator.clipboard.writeText($(id).textContent).then(()=>{const b=event.target;const old=b.textContent;b.textContent='copied';setTimeout(()=>b.textContent=old,1200)})}
+function fallbackCopy(text,done){
+ try{
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; ta.style.top='0'; ta.style.left='0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  const ok=document.execCommand('copy');
+  document.body.removeChild(ta);
+  done(ok);
+ }catch(e){ done(false); }
+}
+function copyText(id,btn){
+ const text=$(id).textContent;
+ const old=btn.textContent;
+ const done=(ok)=>{ btn.textContent = ok?'copied':'copy failed'; setTimeout(()=>btn.textContent=old,1200); };
+ if(navigator.clipboard && navigator.clipboard.writeText){
+  navigator.clipboard.writeText(text).then(()=>done(true)).catch(()=>fallbackCopy(text,done));
+ } else {
+  fallbackCopy(text,done);
+ }
+}
 function goPage(id,btn){
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
  $(id).classList.add('active');
@@ -355,18 +448,34 @@ const REF=[
  ['NoSQL injection','Coerce types before querying','A value expected to be a primitive can arrive as an object or operator. Validate and coerce types, and validate the query shape against a schema.'],
  ['Command injection','Avoid the shell entirely','A string built from user input is handed to a shell that parses ; | & `. Call programs directly with an argument array instead of building a command string.'],
  ['Path traversal','Allowlist + verify containment','Segments like ../ let a path escape its intended directory. Strip to a safe character set, resolve the full path, and confirm it still starts with the intended base directory.'],
- ['HTTP header / response splitting','Strip CR/LF before writing headers','A raw line break in a header value lets an attacker inject additional headers or split the response. Reject or strip \\r\\n in anything destined for a header.'],
+ ['HTTP header / response splitting','Strip line breaks before writing headers','A raw newline in a header value lets an attacker inject additional headers or split the response. Reject or strip \\r\\n in anything destined for a header.'],
+ ['Log injection / log forging','Escape line breaks before writing logs','A newline in a logged value can forge a fake, separate-looking log entry. Escape or strip line breaks in anything untrusted before it reaches a log.'],
  ['Server-side request forgery (SSRF)','Allowlist destinations, block internal ranges','A server fetches a URL supplied by a user. Restrict to an allowlist of expected hosts/schemes and explicitly reject loopback, link-local, and private IP ranges.'],
  ['Open redirect','Allowlist redirect targets','A redirect URL taken from user input can point anywhere, aiding phishing. Only redirect to a known, allowlisted set of internal paths or domains.'],
- ['ReDoS (regex denial of service)','Avoid catastrophic backtracking','Some regexes take exponential time on crafted input due to nested quantifiers. Prefer simple patterns, cap input length before matching, and time-box regex evaluation on user-supplied patterns.']
+ ['ReDoS (regex denial of service)','Avoid catastrophic backtracking','Some regexes take exponential time on crafted input due to nested quantifiers. Prefer simple patterns, cap input length before matching, and time-box regex evaluation on user-supplied patterns.'],
+ ['Insecure deserialization','Prefer plain data formats over native object graphs','Deserializing untrusted bytes with a language\'s native mechanism (pickle, unserialize, ObjectInputStream) can trigger arbitrary code execution via gadget chains. Use JSON or another plain data format for untrusted input.'],
+ ['CSRF / broken CORS','Verify origin, don\'t just trust credentials','A wildcard CORS origin or a missing anti-CSRF token lets other sites trigger authenticated requests or read responses. Echo back a specific allowlisted origin and require a per-session token for state-changing requests.']
 ];
 function buildRef(){
  $('refgrid').innerHTML=REF.map(([t,p,d])=>
   `<div class="refcard"><h3>${t}</h3><div class="principle">${p}</div><p>${d}</p></div>`).join('');
 }
 
+const FRAMEWORKS=[
+ ['React','Auto-escapes text in JSX','{name} in JSX renders as text, not markup. dangerouslySetInnerHTML opts back out — treat it as a deliberate, reviewed exception, ideally paired with a sanitizer library.'],
+ ['Vue','Auto-escapes {{ }} interpolation','Mustache bindings escape by default. v-html renders raw markup and carries the same risk as innerHTML — only use it on content you\'ve already sanitized.'],
+ ['Angular','Sanitizes bound values by default','Angular\'s built-in sanitizer strips dangerous markup from bound HTML, URLs, and styles automatically. bypassSecurityTrustHtml (and its siblings) explicitly disables that check.'],
+ ['Django templates','Auto-escapes variables','{{ value }} is escaped by default. The |safe filter and {% autoescape off %} block both opt out, scoped only to what you explicitly mark.'],
+ ['Rails / ERB','Auto-escapes <%= %>','Modern Rails escapes ERB output by default. raw(), .html_safe, and <%== %> all opt back into unescaped output.'],
+ ['EJS (Node)','Escapes <%= %>, not <%- %>','<%= value %> HTML-escapes the value. <%- value %> renders it raw — easy to reach for by habit when the escaped form is what you actually meant.']
+];
+function buildFrameworks(){
+ $('frameworkgrid').innerHTML=FRAMEWORKS.map(([t,p,d])=>
+  `<div class="refcard"><h3>${t}</h3><div class="principle">${p}</div><p>${d}</p></div>`).join('');
+}
+
 const RULES=[
- {sev:'high',re:/\.innerHTML\s*=/g,title:'Unescaped HTML sink (.innerHTML)',why:'Assigning to innerHTML with untrusted content lets injected markup and scripts execute.',fix:'Use .textContent for plain text, or escape the value before assigning innerHTML.'},
+ {sev:'high',re:/\.innerHTML\s*=(?!=)/g,title:'Unescaped HTML sink (.innerHTML)',why:'Assigning to innerHTML with untrusted content lets injected markup and scripts execute.',fix:'Use .textContent for plain text, or escape the value before assigning innerHTML.'},
  {sev:'high',re:/document\.write\s*\(/g,title:'document.write() sink',why:'Same risk as innerHTML — writes raw markup straight into the page.',fix:'Use DOM methods (createElement / textContent) instead.'},
  {sev:'high',re:/\beval\s*\(/g,title:'eval() of dynamic content',why:'Executes a string as code — any untrusted input reaching it is arbitrary code execution.',fix:'Avoid eval entirely; use JSON.parse for data, or a real parser for expressions.'},
  {sev:'high',re:/new\s+Function\s*\(/g,title:'new Function() constructor',why:'Behaves like eval — compiles a string into executable code at runtime.',fix:'Avoid dynamic code construction; use plain functions.'},
@@ -374,10 +483,21 @@ const RULES=[
  {sev:'high',re:/os\.system\s*\(|shell\s*=\s*True/g,title:'Shell invocation (Python)',why:'os.system and subprocess with shell=True parse the string through a shell.',fix:'Use subprocess.run([...]) with a list of arguments (shell=False, the default).'},
  {sev:'high',re:/(SELECT|INSERT|UPDATE|DELETE)[^;]{0,120}['"]\s*\+\s*\w/gi,title:'SQL string built by concatenation',why:'Untrusted values folded into the query text can change the query\'s structure.',fix:'Use parameterized queries / prepared statements — pass values separately, never concatenated.'},
  {sev:'high',re:/pickle\.loads?\s*\(/g,title:'pickle deserialization',why:'Unpickling untrusted data can execute arbitrary code during deserialization.',fix:'Use a safe data format (JSON) for untrusted input, or restrict unpickling to trusted sources.'},
+ {sev:'high',re:/\bunserialize\s*\(/g,title:'PHP unserialize() of untrusted data',why:'Unserializing attacker-controlled data can trigger object-injection gadgets and lead to arbitrary code execution.',fix:'Use a safe data format (JSON) for untrusted input, or restrict to trusted sources only.'},
+ {sev:'high',re:/ObjectInputStream[\s\S]{0,80}?readObject\s*\(/g,title:'Java native deserialization (readObject)',why:'Deserializing untrusted bytes via ObjectInputStream can execute arbitrary code through known gadget chains.',fix:'Avoid native Java deserialization for untrusted input; use JSON, or a vetted allowlisting deserialization filter.'},
+ {sev:'high',re:/algorithms?\s*[:=]\s*\[?\s*['"]none['"]/gi,title:'JWT "none" algorithm accepted',why:'Accepting the "none" algorithm lets an attacker submit an unsigned token that the verifier treats as valid.',fix:'Explicitly allowlist the expected signing algorithm(s) (e.g. RS256, HS256) and reject "none".'},
  {sev:'medium',re:/yaml\.load\s*\((?!.*Loader)/g,title:'yaml.load() without a safe loader',why:'The default loader can construct arbitrary Python objects from the YAML.',fix:'Use yaml.safe_load(), or pass Loader=yaml.SafeLoader.'},
  {sev:'medium',re:/createHash\(\s*['"](md5|sha1)['"]\s*\)|hashlib\.(md5|sha1)\s*\(/g,title:'Weak hash for a security-relevant use',why:'MD5/SHA-1 are broken for collision resistance and unsuitable for passwords.',fix:'Use SHA-256+ for integrity, and a dedicated password hash (bcrypt/argon2/scrypt) for credentials.'},
+ {sev:'medium',re:/crypto\.createCipher\s*\(/g,title:'Deprecated crypto.createCipher()',why:'createCipher derives the key and IV from a passphrase in a weak, predictable way and is deprecated.',fix:'Use crypto.createCipheriv() with a properly generated key and a random, unique IV per encryption.'},
  {sev:'high',re:/rejectUnauthorized\s*:\s*false|verify\s*=\s*False/g,title:'Certificate verification disabled',why:'Disabling TLS verification allows man-in-the-middle interception.',fix:'Keep certificate verification on; fix the underlying cert/trust issue instead.'},
  {sev:'medium',re:/(api[_-]?key|secret|password|token)\s*[:=]\s*['"][A-Za-z0-9\-_]{8,}['"]/gi,title:'Possible hardcoded credential',why:'Secrets committed to source code end up in version history and are hard to rotate.',fix:'Load secrets from environment variables or a secrets manager, not source code.'},
+ {sev:'medium',re:/dangerouslySetInnerHTML/g,title:'React dangerouslySetInnerHTML',why:'This bypasses React\'s automatic escaping and inserts raw markup, reopening the door to XSS.',fix:'Render as plain text where possible, or sanitize the HTML with a vetted library (e.g. DOMPurify) immediately before use.'},
+ {sev:'low',re:/\|\s*safe\b|autoescape\s+false|<%-/g,title:'Template auto-escaping disabled',why:'Explicitly opting out of a template engine\'s default auto-escaping (Django |safe, Jinja2 autoescape false, EJS <%- %>) re-opens that value to XSS.',fix:'Only disable auto-escaping for content you\'ve already sanitized, and keep it scoped as narrowly as possible.'},
+ {sev:'medium',re:/document\.cookie\s*=/g,title:'Cookie set from client-side JavaScript',why:'Cookies set this way can\'t carry HttpOnly (only a server response header can), so any XSS on the page can read or overwrite them.',fix:'Set sensitive cookies from the server with HttpOnly, Secure, and SameSite attributes instead of via document.cookie.'},
+ {sev:'medium',re:/Access-Control-Allow-Origin['"]?\s*[:=]\s*['"]?\*/g,title:'CORS wildcard origin',why:'A wildcard Access-Control-Allow-Origin lets any website read this endpoint\'s responses from a browser.',fix:'Echo back a specific allowlisted origin per request instead of using *, especially on any endpoint that returns non-public data.'},
+ {sev:'medium',re:/(fetch|axios\.\w+|requests\.(get|post))\s*\(\s*[`'"]?\s*\$?\{?\s*(req\.(query|body|params)|request\.(GET|POST|args))/g,title:'Outbound request built from user input (possible SSRF)',why:'Fetching a URL taken directly from user input lets an attacker redirect server-side requests to internal services or metadata endpoints.',fix:'Allowlist expected hosts/schemes and explicitly reject loopback, link-local, and private IP ranges before fetching.'},
+ {sev:'medium',re:/res\.redirect\s*\(\s*req\.(query|body|params)/g,title:'Open redirect from user input',why:'Redirecting to a URL taken directly from user input can be used to aid phishing.',fix:'Only redirect to a known, allowlisted set of internal paths or domains.'},
+ {sev:'medium',re:/\(([^()]{1,40})[+*]\)[+*]/g,title:'Possible catastrophic backtracking (ReDoS)',why:'A group with an unbounded quantifier that is itself repeated by another unbounded quantifier is the classic shape behind exponential-time regex matching on crafted input.',fix:'Rewrite to avoid nested unbounded quantifiers, cap input length before matching, or use a library with backtracking limits.'},
  {sev:'low',re:/Math\.random\s*\(\s*\)/g,title:'Math.random() is not cryptographically secure',why:'Predictable; fine for UI jitter, unsafe for tokens, IDs, or anything security-relevant.',fix:'Use crypto.getRandomValues() (browser) or crypto.randomBytes() (Node) for security-sensitive values.'}
 ];
 const SEV_ORDER={high:0,medium:1,low:2};
@@ -387,11 +507,12 @@ function scan(){
  let findings=[];
  RULES.forEach(r=>{
   r.re.lastIndex=0;
-  let m;
+  let m, guard=0;
   while((m=r.re.exec(text))){
    const lineNo=text.slice(0,m.index).split('\n').length;
    findings.push({...r,line:lineNo});
    if(m[0].length===0) r.re.lastIndex++;
+   if(++guard>500) break;
   }
  });
  findings.sort((a,b)=>SEV_ORDER[a.sev]-SEV_ORDER[b.sev]||a.line-b.line);
@@ -413,7 +534,10 @@ function scan(){
 const CSP_OPTS=[
  {id:'images',label:'Allow images',sub:'self origin + data: URIs',def:true},
  {id:'fonts',label:'Allow fonts',sub:'same origin only',def:true},
+ {id:'media',label:'Allow audio/video',sub:'same origin only',def:false},
+ {id:'workers',label:'Allow web workers',sub:'same origin only',def:false},
  {id:'inlineStyles',label:'Allow inline styles',sub:"adds 'unsafe-inline' — weakens the policy",def:false},
+ {id:'nonceScripts',label:'Allow inline scripts via nonce',sub:'server must generate a fresh nonce per request',def:false},
  {id:'frameAncestors',label:'Block framing',sub:'clickjacking protection',def:true},
  {id:'upgrade',label:'Upgrade insecure requests',sub:'auto-upgrade http:// to https://',def:true}
 ];
@@ -422,26 +546,128 @@ function buildCspUI(){
   `<label class="cspopt"><input type="checkbox" id="csp_${o.id}" ${o.def?'checked':''} onchange="buildCSP()" style="margin-top:2px">
    <span>${o.label}<small>${o.sub}</small></span></label>`).join('');
 }
+function parseExtraSources(raw){
+ return raw.split(/[\s,]+/).map(s=>s.trim()).filter(Boolean);
+}
+function isValidSource(s){
+ return /^(https?:\/\/[a-zA-Z0-9.-]+(:\d+)?(\/[^\s]*)?|'self'|'none'|'unsafe-inline'|'unsafe-eval'|data:|blob:)$/.test(s);
+}
 function buildCSP(){
  const get=id=>$('csp_'+id)?.checked;
- const extra=$('cspExtra').value.trim();
+ const extras=parseExtraSources($('cspExtra').value.trim());
+ const validExtras=extras.filter(isValidSource);
+ const invalidExtras=extras.filter(s=>!isValidSource(s));
+
  let d=[];
  d.push("default-src 'self'");
- d.push("script-src 'self'"+(extra?` ${extra}`:''));
+ let scriptSrc="script-src 'self'"+(validExtras.length?` ${validExtras.join(' ')}`:'');
+ if(get('nonceScripts')) scriptSrc+=" 'nonce-<server-generated-per-request>'";
+ d.push(scriptSrc);
  d.push("style-src 'self'"+(get('inlineStyles')?" 'unsafe-inline'":''));
  d.push("img-src 'self'"+(get('images')?" data:":''));
  if(get('fonts')) d.push("font-src 'self'");
+ if(get('media')) d.push("media-src 'self'");
+ if(get('workers')) d.push("worker-src 'self'");
  d.push("object-src 'none'");
+ d.push("base-uri 'self'");
+ d.push("form-action 'self'");
  if(get('frameAncestors')) d.push("frame-ancestors 'none'");
  if(get('upgrade')) d.push('upgrade-insecure-requests');
+ const reportTo=$('cspReport').value.trim();
+ if(reportTo) d.push(`report-uri ${reportTo}`);
+
  $('cspOut').textContent=d.join(';\n')+';';
- $('cspExplain').innerHTML = get('inlineStyles')
-  ? '<b>Note:</b> inline styles are enabled, which weakens the policy against style-based attacks. Prefer an external stylesheet or a per-request nonce instead.'
-  : '<b>This policy</b> denies everything not explicitly listed — the safer default to start from, loosened only where you actually need it.';
+
+ let notes=[];
+ if(get('inlineStyles')) notes.push("Inline styles are enabled via 'unsafe-inline', which weakens the policy against style-based attacks — prefer an external stylesheet or a per-request nonce.");
+ if(get('nonceScripts')) notes.push('The nonce shown is a placeholder — your server must generate a fresh random value on every response and print that same value into both the header and every &lt;script nonce="..."&gt; tag.');
+ if(invalidExtras.length) notes.push(`Ignored in the extra-domain field (didn\'t look like a valid https:// origin or CSP keyword): ${invalidExtras.map(escapeHtml).join(', ')}`);
+ $('cspExplain').innerHTML = notes.length
+  ? notes.map(n=>`<b>Note:</b> ${n}`).join('<br><br>')
+  : "<b>This policy</b> denies everything not explicitly listed — base-uri and form-action are locked to 'self' by default too, since there's rarely a legitimate reason to loosen either.";
 }
 
+const QUIZ=[
+ {q:"You're inserting a user's display name into a page (e.g. a comment). What's the right move?",
+  opts:['Concatenate it straight into innerHTML — quick and simple','Use textContent, or escape HTML-significant characters if you must use innerHTML','Strip angle brackets and call it done','Base64-encode the name before displaying it'],
+  correct:1,
+  explain:"Text content should stay text. textContent never parses markup; if you truly need innerHTML, escape the HTML-significant characters first — angle brackets alone aren't enough, since quotes and ampersands matter too depending on where the text lands."},
+ {q:"A filename from user input goes into a Content-Disposition response header. What's the specific risk?",
+  opts:['SQL injection','Header/response splitting via an embedded line break','Path traversal','Command injection'],
+  correct:1,
+  explain:'A raw newline reaching a header-writing call can inject a second header or split the response entirely. Strip or reject line breaks in anything bound for a header.'},
+ {q:"Doubling up quotes ('' instead of ') is enough to safely use a value in a SQL query.",
+  opts:["True — it's a standard, sufficient escape",'False — use parameterized queries instead'],
+  correct:1,
+  explain:'Manual quote-doubling still breaks under encoding tricks and comment syntax in some dialects. Parameterized queries keep the value out of the SQL text entirely.'},
+ {q:'db.users.find({ username: req.body.username }) — the client sends {"$ne": null} as the value. What\'s the issue?',
+  opts:['Cross-site scripting','The value can arrive as an object instead of a string, and some drivers treat its keys as query operators','ReDoS','Nothing — MongoDB validates types automatically'],
+  correct:1,
+  explain:"JSON bodies let a client send any type. If the code doesn't coerce the value to a string first, an object like {\"$ne\": null} can be interpreted as a query operator instead of a literal match."},
+ {q:'What actually fixes command injection when calling an external program with a user-supplied argument?',
+  opts:['Escaping shell metacharacters like ; and |','Calling the program directly with an argument array — no shell involved','Wrapping the argument in quotes','URL-encoding the argument'],
+  correct:1,
+  explain:'Escaping for a shell is easy to get wrong. Passing arguments as an array to a function that invokes the program directly (execFile/spawn, subprocess with shell=False) removes the shell from the equation entirely.'},
+ {q:'../../etc/passwd reaches fs.readFile after being joined with an uploads directory. Best fix?',
+  opts:['Reject any filename containing a dot',"Allowlist safe characters, collapse traversal sequences, resolve the full path, and confirm it's still inside the base directory",'URL-encode the filename','Lowercase the filename'],
+  correct:1,
+  explain:"Character allowlisting alone can miss edge cases; the containment check after resolving the full path is what actually guarantees the file can't escape the intended directory."},
+ {q:'A validation regex looks like ^(a+)+$. What should catch your attention?',
+  opts:["It's slower than string comparison but otherwise fine",'Nested unbounded quantifiers can cause catastrophic backtracking (ReDoS) on crafted input',"It won't match Unicode text",'Nothing — anchoring with ^ and $ makes it safe'],
+  correct:1,
+  explain:'A group with an unbounded quantifier, itself repeated by another unbounded quantifier, is the classic shape behind catastrophic backtracking. A crafted near-miss input can make matching take exponential time.'},
+ {q:"log.info('login attempt: ' + username) — username contains a line break followed by a fake success message. What's the concern?",
+  opts:['SQL injection','Log forging — an attacker can fabricate fake log entries; strip or escape line breaks before logging','Nothing, logs are internal only','Cross-site scripting in the log file'],
+  correct:1,
+  explain:"Anyone who can put a line break into a logged value can forge what looks like a separate, legitimate log entry. Escape or strip line breaks before writing untrusted values into logs."}
+];
+let quizIdx=0, quizScore=0, quizAnswered=false;
+function renderQuiz(){
+ const card=$('quizCard');
+ if(quizIdx>=QUIZ.length){
+  card.innerHTML=`<h2>Score: ${quizScore} / ${QUIZ.length}</h2>
+   <p class="sub" style="margin-top:8px">${quizScore===QUIZ.length?'Clean sweep.':'Worth a second pass through the playground on the ones you missed.'}</p>
+   <button class="ctxbtn active" style="margin-top:10px" onclick="restartQuiz()">Restart</button>`;
+  return;
+ }
+ const item=QUIZ[quizIdx]; quizAnswered=false;
+ card.innerHTML=`
+  <div class="sub">Question ${quizIdx+1} of ${QUIZ.length} · score ${quizScore}</div>
+  <h2 style="margin-top:6px;font-size:18px;line-height:1.4">${escapeHtml(item.q)}</h2>
+  <div id="quizOpts" style="margin-top:14px;display:grid;gap:8px"></div>
+  <div id="quizFeedback" class="explain" style="display:none;margin-top:12px"></div>
+  <button id="quizNext" class="ctxbtn" style="margin-top:14px;display:none" onclick="nextQuiz()">Next →</button>
+ `;
+ const opts=$('quizOpts');
+ item.opts.forEach((o,i)=>{
+  const b=document.createElement('button');
+  b.className='quizopt';
+  b.textContent=o;
+  b.onclick=()=>answerQuiz(i);
+  opts.appendChild(b);
+ });
+}
+function answerQuiz(i){
+ if(quizAnswered) return;
+ quizAnswered=true;
+ const item=QUIZ[quizIdx];
+ const opts=$('quizOpts').children;
+ for(let j=0;j<opts.length;j++){
+  opts[j].disabled=true;
+  if(j===item.correct){ opts[j].style.background='var(--safe-bg)'; opts[j].style.borderColor='var(--safe)'; opts[j].style.color='var(--safe)'; }
+  else if(j===i){ opts[j].style.background='var(--danger-bg)'; opts[j].style.borderColor='var(--danger)'; opts[j].style.color='var(--danger)'; }
+ }
+ if(i===item.correct) quizScore++;
+ const fb=$('quizFeedback');
+ fb.style.display='block';
+ fb.innerHTML=`<b>${i===item.correct?'Right.':'Not quite.'}</b> ${item.explain}`;
+ $('quizNext').style.display='inline-block';
+}
+function nextQuiz(){ quizIdx++; renderQuiz(); }
+function restartQuiz(){ quizIdx=0; quizScore=0; renderQuiz(); }
+
 buildNav();$('raw').value=CTX[current].placeholder;render();
-buildRef();buildCspUI();buildCSP();
+buildRef();buildFrameworks();buildCspUI();buildCSP();renderQuiz();
 </script>
 </body>
 </html>
