@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sanitize — A Defensive Coding Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,560;9..144,650&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+ --bg:#eef1ea;--paper:#fffdf9;--paper2:#f6f3ec;--line:#d9ddce;
+ --ink:#22301f;--muted:#647063;--safe:#2f6f5e;--safe-bg:#e5f0e9;
+ --danger:#a04f37;--danger-bg:#f6e6de;--warn:#96741f;--warn-bg:#f4ecd9;
+ --shadow:0 1px 2px rgba(30,40,25,.05),0 8px 24px rgba(30,40,25,.06);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Public Sans",system-ui,sans-serif;}
+h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:560;margin:0}
+code,pre,.mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--safe);outline-offset:2px}
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+aside{border-right:1px solid var(--line);padding:28px 18px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.mark{width:34px;height:34px;border-radius:8px;background:var(--safe);color:#fff;display:grid;place-items:center;font-family:"Fraunces",serif;font-weight:650;font-size:16px;margin-bottom:10px}
+aside h1{font-size:19px;line-height:1.2}
+aside p{color:var(--muted);font-size:12.5px;margin:6px 0 26px}
+.navgroup{margin-bottom:22px}
+.navgroup h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:"Public Sans";font-weight:600;margin-bottom:8px}
+.navbtn{display:block;width:100%;text-align:left;border:0;background:none;padding:8px 9px;border-radius:6px;color:var(--muted);cursor:pointer;font:500 13px "Public Sans"}
+.navbtn:hover{background:var(--paper2);color:var(--ink)}
+.navbtn.active{background:var(--safe-bg);color:var(--safe);font-weight:600}
+.footnote{font-size:11px;color:var(--muted);line-height:1.6;border-top:1px solid var(--line);padding-top:12px;margin-top:20px}
+main{padding:40px 44px;max-width:1000px}
+.hero{margin-bottom:30px}
+.hero h1{font-size:32px;line-height:1.15;max-width:15ch}
+.hero p{max-width:60ch;color:var(--muted);font-size:15px;margin-top:10px}
+.contexts{display:flex;gap:6px;flex-wrap:wrap;margin:26px 0 20px;border-bottom:1px solid var(--line);padding-bottom:16px}
+.ctxbtn{border:1px solid var(--line);background:var(--paper);padding:9px 13px;border-radius:99px;cursor:pointer;font:500 13px "Public Sans";color:var(--muted)}
+.ctxbtn.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.workbench{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+.card h2{font-size:16px;margin-bottom:4px}
+.card .sub{color:var(--muted);font-size:12.5px;margin-bottom:14px}
+textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:8px;padding:11px;background:var(--paper2);color:var(--ink);resize:vertical;font:13px "IBM Plex Mono";outline:0}
+textarea:focus{border-color:var(--safe)}
+.panel{border-radius:9px;padding:13px;margin-top:12px;font:13px "IBM Plex Mono";white-space:pre-wrap;word-break:break-word;line-height:1.6}
+.panel.danger{background:var(--danger-bg);border:1px solid #e2c3b3}
+.panel.safe{background:var(--safe-bg);border:1px solid #bfdbcd}
+.panellabel{font:600 10.5px "Public Sans";text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;display:flex;align-items:center;gap:6px;justify-content:space-between}
+.panellabel.danger{color:var(--danger)}
+.panellabel.safe{color:var(--safe)}
+.flag{background:rgba(160,79,55,.22);border-radius:3px;padding:0 1px;font-weight:600}
+.explain{margin-top:14px;font-size:13.5px;color:#3c4a37;line-height:1.65}
+.explain b{color:var(--ink)}
+.snippet{margin-top:10px;background:#1d271c;color:#dbe6d6;border-radius:9px;padding:14px;font:12.5px/1.6 "IBM Plex Mono";overflow-x:auto}
+.snippet .cm{color:#8a9a83}
+.stat-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.stat{background:var(--paper2);border:1px solid var(--line);border-radius:7px;padding:7px 11px;font-size:12px;color:var(--muted)}
+.stat b{color:var(--ink);font-family:"IBM Plex Mono"}
+.copybtn{border:1px solid var(--line);background:transparent;border-radius:6px;padding:3px 8px;font:500 10.5px "Public Sans";color:var(--muted);cursor:pointer}
+.copybtn:hover{background:var(--paper2);color:var(--ink)}
+.refhead{margin:0 0 16px}
+.refgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.refcard{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:17px}
+.refcard h3{font-size:14.5px;margin-bottom:6px}
+.refcard .principle{color:var(--safe);font:600 12px "Public Sans";margin-bottom:8px}
+.refcard p{color:var(--muted);font-size:13px;line-height:1.6;margin:0}
+.page{display:none}.page.active{display:block}
+.findcard{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:16px}
+.findhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.findhead h3{font-size:14.5px}
+.badge{font:600 11px "Public Sans";border-radius:99px;padding:4px 10px;white-space:nowrap}
+.cspopt{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--paper2)}
+.cspopt small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+@media(max-width:880px){.shell{grid-template-columns:1fr}aside{position:static;height:auto}.workbench,.refgrid{grid-template-columns:1fr}main{padding:26px 20px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside>
+ <div class="mark">S</div>
+ <h1>Sanitize</h1>
+ <p>A field guide and toolkit for handling untrusted input safely.</p>
+ <div class="navgroup">
+  <h3>Toolkit</h3>
+  <button class="navbtn active" data-page="workbench" onclick="goPage('workbench',this)">Context playground</button>
+  <button class="navbtn" data-page="scanner" onclick="goPage('scanner',this)">Code scanner</button>
+  <button class="navbtn" data-page="csp" onclick="goPage('csp',this)">CSP builder</button>
+  <button class="navbtn" data-page="reference" onclick="goPage('reference',this)">Vulnerability reference</button>
+ </div>
+ <div class="footnote">Runs entirely in your browser, nothing is sent anywhere. Nothing here builds or executes working exploit code — only defensive transforms and pattern-matching over text you provide.</div>
+ 
+ <!-- Developer Branding Section -->
+ <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--line); text-align: center;">
+     <div style="font-size: 11px; color: var(--muted); margin-bottom: 8px;">Developed by <b style="color: var(--ink);">Nadeeja</b></div>
+     <div style="display: flex; gap: 10px; justify-content: center;">
+         <a href="www.linkedin.com/in/nadeeja-hirun" target="_blank" style="font-size: 11px; color: var(--safe); text-decoration: none; font-weight: 600;">LinkedIn</a>
+         <a href="https://web.facebook.com/nadeeja.hirun.2025" target="_blank" style="font-size: 11px; color: var(--safe); text-decoration: none; font-weight: 600;">Facebook</a>
+     </div>
+ </div>
+ 
+</aside>
+<main>
+
+<section id="workbench" class="page active">
+ <div class="hero">
+  <h1>The fix depends on where the string lands.</h1>
+  <p>The same piece of user input needs a different defense depending on where it ends up. Pick a destination context and see why, character by character.</p>
+ </div>
+
+ <div class="contexts" id="contexts"></div>
+
+ <div class="workbench">
+  <div class="card">
+   <h2>Untrusted input</h2>
+   <div class="sub" id="ctxDesc">What a user (or attacker) might type into this field.</div>
+   <textarea id="raw" spellcheck="false" oninput="render()"></textarea>
+   <div class="stat-row">
+    <div class="stat"><b id="statLen">0</b> characters</div>
+    <div class="stat"><b id="statFlag">0</b> flagged</div>
+   </div>
+  </div>
+
+  <div class="card">
+   <h2>Where it goes</h2>
+   <div class="sub">Same input, handled unsafely vs. handled correctly.</div>
+   <div class="panel danger">
+    <div class="panellabel danger"><span>⚠ If concatenated directly</span></div>
+    <div id="unsafeOut">—</div>
+   </div>
+   <div class="panel safe">
+    <div class="panellabel safe"><span>✓ Defended</span><button class="copybtn" onclick="copyText('safeOut')">copy</button></div>
+    <div id="safeOut">—</div>
+   </div>
+   <div class="explain" id="explainOut"></div>
+   <div class="snippet" id="codeOut"></div>
+  </div>
+ </div>
+</section>
+
+<section id="scanner" class="page">
+ <div class="hero">
+  <h1>Scan a snippet for risky patterns.</h1>
+  <p>Paste a code snippet and get a heuristic pass over common anti-patterns — the kind a security-minded reviewer flags in a pull request. This only pattern-matches text; nothing you paste is executed.</p>
+ </div>
+ <div class="card">
+  <h2>Paste code</h2>
+  <div class="sub">Any language — rules cover common risky calls across JS, Node, and Python.</div>
+  <textarea id="scanIn" style="min-height:170px" placeholder="paste a function, route handler, or script here..." oninput="scan()"></textarea>
+  <div class="stat-row"><div class="stat"><b id="scanCount">0</b> findings</div></div>
+ </div>
+ <div id="scanResults" style="margin-top:14px;display:grid;gap:10px"></div>
+</section>
+
+<section id="csp" class="page">
+ <div class="hero">
+  <h1>Build a starting Content-Security-Policy.</h1>
+  <p>Pick the sources this page actually needs. Everything not listed stays closed — loosen only what you must.</p>
+ </div>
+ <div class="workbench">
+  <div class="card">
+   <h2>Sources</h2>
+   <div class="sub">Toggle what this page legitimately needs.</div>
+   <div id="cspOpts"></div>
+   <label style="display:block;margin-top:14px;color:#788698;font-size:11.5px">Additional trusted script domain (optional)</label>
+   <input id="cspExtra" placeholder="https://cdn.example.com" style="width:100%;padding:9px;margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--paper2);color:var(--ink);font:13px 'IBM Plex Mono';outline:0" oninput="buildCSP()">
+  </div>
+  <div class="card">
+   <h2>Generated header</h2>
+   <div class="sub">Content-Security-Policy</div>
+   <div class="snippet" id="cspOut"></div>
+   <div class="explain" id="cspExplain"></div>
+  </div>
+ </div>
+</section>
+
+<section id="reference" class="page">
+ <div class="hero">
+  <h1>Common injection classes, and the actual fix.</h1>
+  <p>Not payload lists — the defensive principle that closes each class of bug, so you recognize the fix pattern anywhere you meet it.</p>
+ </div>
+ <div class="refgrid" id="refgrid"></div>
+</section>
+
+</main>
+</div>
+
+<script>
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function escapeHtmlAttr(s){return s.replace(/[&<>"'`=]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;','=':'&#61;'}[c]))}
+function sanitizeFilename(s){
+ let c=s.replace(/[^A-Za-z0-9._-]/g,'_');
+ c=c.replace(/\.{2,}/g,'_');
+ c=c.replace(/^[._-]+/,'');
+ return c || '(empty after sanitizing — reject)';
+}
+function sanitizeHeaderValue(s){
+ let c=s.replace(/[\r\n]/g,'');
+ return c || '(empty after stripping CR/LF)';
+}
+
+const CTX = {
+ htmlBody:{
+  label:'HTML page body', desc:'Text inserted into a page, e.g. a comment or profile bio.',
+  placeholder:'Nice profile! <script>alert(1)<\/script>',
+  before:'el.innerHTML = "', after:'"',
+  flagChars:['<','>','&','"',"'"],
+  safe:s=>escapeHtml(s),
+  explain:'<b>Never build markup by string concatenation.</b> Setting <code>.innerHTML</code> with raw input lets any <code>&lt;script&gt;</code> or event-handler attribute execute as code. Escaping the HTML-significant characters turns markup into inert text.',
+  code:`<span class="cm">// unsafe: user text becomes live markup</span>
+el.innerHTML = userBio;
+
+<span class="cm">// safe: text stays text</span>
+el.textContent = userBio;
+<span class="cm">// or, if you must keep innerHTML, escape first:</span>
+el.innerHTML = escapeHtml(userBio);`
+ },
+ htmlAttr:{
+  label:'HTML attribute', desc:'Text placed inside an attribute value, e.g. alt or title.',
+  placeholder:'x" onmouseover="alert(1)',
+  before:'<img alt="', after:'">',
+  flagChars:['"',"'",'<','>','`','='],
+  safe:s=>escapeHtmlAttr(s),
+  explain:'<b>Attribute context needs stricter escaping than body text.</b> A stray quote lets an attacker close the attribute and add a new one, like an event handler. Escape quotes, angle brackets, and backticks before interpolating into any attribute.',
+  code:`<span class="cm">// unsafe: quote breaks out of the attribute</span>
+html += '&lt;img alt="' + userAlt + '"&gt;';
+
+<span class="cm">// safe: escape before interpolating</span>
+html += '&lt;img alt="' + escapeHtmlAttr(userAlt) + '"&gt;';
+<span class="cm">// better: use DOM APIs instead of string-building</span>
+img.setAttribute('alt', userAlt);`
+ },
+ url:{
+  label:'URL / query parameter', desc:'Text embedded in a link or query string.',
+  placeholder:'search term & category=all#done',
+  before:'/search?q=', after:'',
+  flagChars:['&','?','#','/',' ','='],
+  safe:s=>encodeURIComponent(s),
+  explain:'<b>Unencoded input can inject extra parameters or fragments.</b> An <code>&amp;</code> or <code>#</code> in raw input changes which query params the server actually receives. <code>encodeURIComponent</code> makes the value inert data again.',
+  code:`<span class="cm">// unsafe: & and # change the query structure</span>
+const url = \`/search?q=\${userQuery}\`;
+
+<span class="cm">// safe</span>
+const url = \`/search?q=\${encodeURIComponent(userQuery)}\`;`
+ },
+ header:{
+  label:'HTTP header value', desc:'Text placed into a response header, e.g. a filename or redirect target.',
+  placeholder:'report.pdf\r\nSet-Cookie: session=evil',
+  before:'Content-Disposition: attachment; filename=', after:'',
+  flagChars:['\r','\n',':'],
+  safe:s=>sanitizeHeaderValue(s),
+  explain:'<b>Header values must never contain a raw line break.</b> A CR/LF sequence reaching a raw header-writing call lets an attacker inject a second header — including a forged <code>Set-Cookie</code> — or split the response entirely. Strip or reject line breaks in anything bound for a header.',
+  code:`<span class="cm">// unsafe: raw value written into a header</span>
+res.setHeader('Content-Disposition', \`attachment; filename=\${filename}\`);
+
+<span class="cm">// safe: strip CR/LF first (most frameworks also do this for you)</span>
+const clean = filename.replace(/[\\r\\n]/g, '');
+res.setHeader('Content-Disposition', \`attachment; filename=\${clean}\`);`
+ },
+ sql:{
+  label:'Database query', desc:'Text used to filter or match a database record.',
+  placeholder:"o'brien",
+  before:"SELECT * FROM users WHERE name = '", after:"'",
+  flagChars:["'",'"',';','-'],
+  safe:s=>`SELECT * FROM users WHERE name = ?\n-- bound param: ${JSON.stringify(s)}`,
+  explain:'<b>Escaping quotes is not the fix here — parameterization is.</b> Manually doubling quotes still breaks under encoding tricks and comment syntax. A parameterized query keeps the value out of the SQL text entirely, so it can never change the query\'s structure.',
+  code:`<span class="cm">// unsafe: value is part of the SQL string</span>
+db.query("SELECT * FROM users WHERE name = '" + name + "'");
+
+<span class="cm">// safe: value is a bound parameter, never parsed as SQL</span>
+db.query("SELECT * FROM users WHERE name = ?", [name]);`
+ },
+ nosql:{
+  label:'NoSQL query (e.g. MongoDB)', desc:'A value used to build a NoSQL filter object.',
+  placeholder:'{"$ne": null}',
+  before:'db.users.find({ username: ', after:' })',
+  flagChars:['$','{','}'],
+  safe:s=>`db.users.find({ username: String(${JSON.stringify(s)}) })`,
+  explain:'<b>Type matters as much as content.</b> If a client can send JSON, a field expected to be a plain string can arrive as an object like <code>{"$ne": null}</code> instead — some drivers will interpret that as a query operator, silently bypassing the intended filter. Coerce to the expected type before using a value in a query.',
+  code:`<span class="cm">// unsafe: whatever shape the client sent is used directly</span>
+db.users.find({ username: req.body.username });
+
+<span class="cm">// safe: force the expected primitive type first</span>
+db.users.find({ username: String(req.body.username) });`
+ },
+ filename:{
+  label:'Filesystem path', desc:'Text used to build a file path, e.g. an upload or export name.',
+  placeholder:'../../etc/passwd',
+  before:'fs.readFile("/uploads/', after:'")',
+  flagChars:['.','/','\\'],
+  safe:s=>sanitizeFilename(s),
+  explain:'<b>Never build a path from raw input.</b> Segments like <code>../</code> walk outside the intended directory. Strip to an allowlist of safe characters, collapse any run of dots, then resolve against a known base directory and confirm the result is still inside it.',
+  code:`<span class="cm">// unsafe: ../ escapes the uploads directory</span>
+fs.readFile(path.join(BASE, userFilename));
+
+<span class="cm">// safe: allowlist chars, collapse traversal sequences, verify containment</span>
+const clean = userFilename.replace(/[^A-Za-z0-9._-]/g, '_').replace(/\\.{2,}/g, '_');
+const full = path.resolve(BASE, clean);
+if (!full.startsWith(BASE)) throw new Error('invalid path');`
+ },
+ shell:{
+  label:'Shell command argument', desc:'Text that would be passed to a command-line program.',
+  placeholder:'file.txt; rm -rf ~',
+  before:'exec("convert ', after:' out.png")',
+  flagChars:[';','|','&','$','`'],
+  safe:s=>`execFile("convert", [${JSON.stringify(s)}, "out.png"])`,
+  explain:'<b>The real fix is avoiding the shell, not escaping for it.</b> Shell metacharacters are too easy to miss. Pass arguments as an array to a function that calls the program directly (no shell parsing) instead of building one command string.',
+  code:`<span class="cm">// unsafe: string is parsed by a shell</span>
+exec(\`convert \${filename} out.png\`);
+
+<span class="cm">// safe: arguments passed directly, no shell involved</span>
+execFile('convert', [filename, 'out.png']);`
+ }
+};
+
+let current = localStorage.getItem('sanitize_ctx') && CTX[localStorage.getItem('sanitize_ctx')] ? localStorage.getItem('sanitize_ctx') : 'htmlBody';
+const $=id=>document.getElementById(id);
+
+function buildNav(){
+ $('contexts').innerHTML=Object.entries(CTX).map(([k,c])=>
+  `<button class="ctxbtn${k===current?' active':''}" onclick="setCtx('${k}')">${c.label}</button>`).join('');
+}
+function setCtx(k){current=k;localStorage.setItem('sanitize_ctx',k);$('raw').value=CTX[k].placeholder;buildNav();render()}
+function render(){
+ const c=CTX[current], s=$('raw').value;
+ $('ctxDesc').textContent=c.desc;
+ $('statLen').textContent=[...s].length;
+ $('statFlag').textContent=[...s].filter(ch=>c.flagChars.includes(ch)).length;
+
+ const box=$('unsafeOut'); box.innerHTML='';
+ box.appendChild(document.createTextNode(c.before));
+ for(const ch of s){
+  if(c.flagChars.includes(ch)){
+   const sp=document.createElement('span'); sp.className='flag'; sp.textContent=ch; box.appendChild(sp);
+  } else {
+   box.appendChild(document.createTextNode(ch));
+  }
+ }
+ box.appendChild(document.createTextNode(c.after));
+
+ $('safeOut').textContent = s ? c.safe(s) : '—';
+ $('explainOut').innerHTML=c.explain;
+ $('codeOut').innerHTML=c.code;
+}
+function copyText(id){navigator.clipboard.writeText($(id).textContent).then(()=>{const b=event.target;const old=b.textContent;b.textContent='copied';setTimeout(()=>b.textContent=old,1200)})}
+function goPage(id,btn){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ $(id).classList.add('active');
+ document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');
+}
+
+const REF=[
+ ['Cross-site scripting (XSS)','Escape on output, per context','Untrusted text is inserted into a page and browsers treat it as markup instead of text. Escape for the exact context (body, attribute, JS string, URL) at the point of output — not just once, somewhere earlier.'],
+ ['SQL injection','Parameterize, never concatenate','Untrusted text becomes part of a query\'s literal syntax. Bound parameters keep data and code separate at the driver level, so no input can alter the query\'s structure.'],
+ ['NoSQL injection','Coerce types before querying','A value expected to be a primitive can arrive as an object or operator. Validate and coerce types, and validate the query shape against a schema.'],
+ ['Command injection','Avoid the shell entirely','A string built from user input is handed to a shell that parses ; | & `. Call programs directly with an argument array instead of building a command string.'],
+ ['Path traversal','Allowlist + verify containment','Segments like ../ let a path escape its intended directory. Strip to a safe character set, resolve the full path, and confirm it still starts with the intended base directory.'],
+ ['HTTP header / response splitting','Strip CR/LF before writing headers','A raw line break in a header value lets an attacker inject additional headers or split the response. Reject or strip \\r\\n in anything destined for a header.'],
+ ['Server-side request forgery (SSRF)','Allowlist destinations, block internal ranges','A server fetches a URL supplied by a user. Restrict to an allowlist of expected hosts/schemes and explicitly reject loopback, link-local, and private IP ranges.'],
+ ['Open redirect','Allowlist redirect targets','A redirect URL taken from user input can point anywhere, aiding phishing. Only redirect to a known, allowlisted set of internal paths or domains.'],
+ ['ReDoS (regex denial of service)','Avoid catastrophic backtracking','Some regexes take exponential time on crafted input due to nested quantifiers. Prefer simple patterns, cap input length before matching, and time-box regex evaluation on user-supplied patterns.']
+];
+function buildRef(){
+ $('refgrid').innerHTML=REF.map(([t,p,d])=>
+  `<div class="refcard"><h3>${t}</h3><div class="principle">${p}</div><p>${d}</p></div>`).join('');
+}
+
+const RULES=[
+ {sev:'high',re:/\.innerHTML\s*=/g,title:'Unescaped HTML sink (.innerHTML)',why:'Assigning to innerHTML with untrusted content lets injected markup and scripts execute.',fix:'Use .textContent for plain text, or escape the value before assigning innerHTML.'},
+ {sev:'high',re:/document\.write\s*\(/g,title:'document.write() sink',why:'Same risk as innerHTML — writes raw markup straight into the page.',fix:'Use DOM methods (createElement / textContent) instead.'},
+ {sev:'high',re:/\beval\s*\(/g,title:'eval() of dynamic content',why:'Executes a string as code — any untrusted input reaching it is arbitrary code execution.',fix:'Avoid eval entirely; use JSON.parse for data, or a real parser for expressions.'},
+ {sev:'high',re:/new\s+Function\s*\(/g,title:'new Function() constructor',why:'Behaves like eval — compiles a string into executable code at runtime.',fix:'Avoid dynamic code construction; use plain functions.'},
+ {sev:'high',re:/child_process\.exec\s*\(|(?<![.\w])exec\s*\(\s*[`'"][^`'"]*\$\{/g,title:'Shell command built from a string',why:'exec() runs the string through a shell that parses ; | & $ ` — untrusted input can inject additional commands.',fix:'Use execFile()/spawn() with an argument array instead of a shell string.'},
+ {sev:'high',re:/os\.system\s*\(|shell\s*=\s*True/g,title:'Shell invocation (Python)',why:'os.system and subprocess with shell=True parse the string through a shell.',fix:'Use subprocess.run([...]) with a list of arguments (shell=False, the default).'},
+ {sev:'high',re:/(SELECT|INSERT|UPDATE|DELETE)[^;]{0,120}['"]\s*\+\s*\w/gi,title:'SQL string built by concatenation',why:'Untrusted values folded into the query text can change the query\'s structure.',fix:'Use parameterized queries / prepared statements — pass values separately, never concatenated.'},
+ {sev:'high',re:/pickle\.loads?\s*\(/g,title:'pickle deserialization',why:'Unpickling untrusted data can execute arbitrary code during deserialization.',fix:'Use a safe data format (JSON) for untrusted input, or restrict unpickling to trusted sources.'},
+ {sev:'medium',re:/yaml\.load\s*\((?!.*Loader)/g,title:'yaml.load() without a safe loader',why:'The default loader can construct arbitrary Python objects from the YAML.',fix:'Use yaml.safe_load(), or pass Loader=yaml.SafeLoader.'},
+ {sev:'medium',re:/createHash\(\s*['"](md5|sha1)['"]\s*\)|hashlib\.(md5|sha1)\s*\(/g,title:'Weak hash for a security-relevant use',why:'MD5/SHA-1 are broken for collision resistance and unsuitable for passwords.',fix:'Use SHA-256+ for integrity, and a dedicated password hash (bcrypt/argon2/scrypt) for credentials.'},
+ {sev:'high',re:/rejectUnauthorized\s*:\s*false|verify\s*=\s*False/g,title:'Certificate verification disabled',why:'Disabling TLS verification allows man-in-the-middle interception.',fix:'Keep certificate verification on; fix the underlying cert/trust issue instead.'},
+ {sev:'medium',re:/(api[_-]?key|secret|password|token)\s*[:=]\s*['"][A-Za-z0-9\-_]{8,}['"]/gi,title:'Possible hardcoded credential',why:'Secrets committed to source code end up in version history and are hard to rotate.',fix:'Load secrets from environment variables or a secrets manager, not source code.'},
+ {sev:'low',re:/Math\.random\s*\(\s*\)/g,title:'Math.random() is not cryptographically secure',why:'Predictable; fine for UI jitter, unsafe for tokens, IDs, or anything security-relevant.',fix:'Use crypto.getRandomValues() (browser) or crypto.randomBytes() (Node) for security-sensitive values.'}
+];
+const SEV_ORDER={high:0,medium:1,low:2};
+function scan(){
+ const text=$('scanIn').value;
+ if(!text.trim()){ $('scanCount').textContent='0'; $('scanResults').innerHTML=''; return; }
+ let findings=[];
+ RULES.forEach(r=>{
+  r.re.lastIndex=0;
+  let m;
+  while((m=r.re.exec(text))){
+   const lineNo=text.slice(0,m.index).split('\n').length;
+   findings.push({...r,line:lineNo});
+   if(m[0].length===0) r.re.lastIndex++;
+  }
+ });
+ findings.sort((a,b)=>SEV_ORDER[a.sev]-SEV_ORDER[b.sev]||a.line-b.line);
+ $('scanCount').textContent=findings.length;
+ $('scanResults').innerHTML = findings.length ? findings.map(f=>{
+  const bg=f.sev==='high'?'var(--danger-bg)':f.sev==='medium'?'var(--warn-bg)':'var(--paper2)';
+  const fg=f.sev==='high'?'var(--danger)':f.sev==='medium'?'var(--warn)':'var(--muted)';
+  return `<div class="findcard">
+   <div class="findhead">
+    <h3>${escapeHtml(f.title)}</h3>
+    <span class="badge" style="background:${bg};color:${fg}">line ${f.line} · ${f.sev}</span>
+   </div>
+   <p style="color:var(--muted);font-size:13px;margin:8px 0 0">${escapeHtml(f.why)}</p>
+   <div class="explain" style="margin-top:8px"><b>Fix:</b> ${escapeHtml(f.fix)}</div>
+  </div>`;
+ }).join('') : '<div class="findcard" style="color:var(--muted)">No matches from the current rule set — this is a heuristic pass, not a guarantee, and won\'t catch everything.</div>';
+}
+
+const CSP_OPTS=[
+ {id:'images',label:'Allow images',sub:'self origin + data: URIs',def:true},
+ {id:'fonts',label:'Allow fonts',sub:'same origin only',def:true},
+ {id:'inlineStyles',label:'Allow inline styles',sub:"adds 'unsafe-inline' — weakens the policy",def:false},
+ {id:'frameAncestors',label:'Block framing',sub:'clickjacking protection',def:true},
+ {id:'upgrade',label:'Upgrade insecure requests',sub:'auto-upgrade http:// to https://',def:true}
+];
+function buildCspUI(){
+ $('cspOpts').innerHTML=CSP_OPTS.map(o=>
+  `<label class="cspopt"><input type="checkbox" id="csp_${o.id}" ${o.def?'checked':''} onchange="buildCSP()" style="margin-top:2px">
+   <span>${o.label}<small>${o.sub}</small></span></label>`).join('');
+}
+function buildCSP(){
+ const get=id=>$('csp_'+id)?.checked;
+ const extra=$('cspExtra').value.trim();
+ let d=[];
+ d.push("default-src 'self'");
+ d.push("script-src 'self'"+(extra?` ${extra}`:''));
+ d.push("style-src 'self'"+(get('inlineStyles')?" 'unsafe-inline'":''));
+ d.push("img-src 'self'"+(get('images')?" data:":''));
+ if(get('fonts')) d.push("font-src 'self'");
+ d.push("object-src 'none'");
+ if(get('frameAncestors')) d.push("frame-ancestors 'none'");
+ if(get('upgrade')) d.push('upgrade-insecure-requests');
+ $('cspOut').textContent=d.join(';\n')+';';
+ $('cspExplain').innerHTML = get('inlineStyles')
+  ? '<b>Note:</b> inline styles are enabled, which weakens the policy against style-based attacks. Prefer an external stylesheet or a per-request nonce instead.'
+  : '<b>This policy</b> denies everything not explicitly listed — the safer default to start from, loosened only where you actually need it.';
+}
+
+buildNav();$('raw').value=CTX[current].placeholder;render();
+buildRef();buildCspUI();buildCSP();
+</script>
+</body>
+</html>
