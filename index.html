@@ -126,6 +126,19 @@ textarea:focus{border-color:var(--safe)}
 .code-preview{margin-top:10px;background:#182218;color:#d8e5d3;border-radius:8px;padding:10px 12px;font:12px/1.5 "IBM Plex Mono";overflow-x:auto}
 .code-preview .line-num{color:#647560;user-select:none;margin-right:10px}
 .code-preview mark{background:#a04f37;color:#fff;border-radius:2px;padding:0 2px}
+ .file-drop{border:1px dashed var(--line);border-radius:9px;padding:12px 14px;margin-top:12px;background:var(--paper2);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;transition:border-color .15s,background .15s}
+ .file-drop.dragover{border-color:var(--safe);background:var(--safe-bg)}
+ .file-drop label{font-size:12px;color:var(--muted);cursor:pointer}
+ .file-drop input[type=file]{font-size:12px;max-width:100%}
+ .scan-status{font-size:11.5px;color:var(--muted);min-height:18px;margin-top:6px}
+ .finding-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+ .findcard.reviewed{opacity:.72}
+ .reviewed-label{font-size:11px;color:var(--safe);font-weight:600}
+ .history-list{display:grid;gap:8px}
+ .history-item{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--paper2);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+ .history-meta{font-size:12px;color:var(--muted)}
+ .history-meta b{color:var(--ink)}
+ .compare-box{margin-top:12px;padding:11px;border-radius:8px;background:var(--info-bg);color:var(--ink);font-size:12.5px;line-height:1.55}
 
 /* CSP & Quiz Styles */
 .cspopt{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--paper2)}
@@ -164,6 +177,9 @@ textarea:focus{border-color:var(--safe)}
  .filter-tabs .filter-tab{flex:1 1 auto}
  .filter-tabs .action-btn{width:100%;margin-left:0 !important;justify-content:center}
  .findhead h3{min-width:0;flex:1}
+ .file-drop{align-items:stretch}
+ .file-drop label{width:100%}
+ .file-drop input[type=file]{width:100%}
  #toast{left:12px;right:12px;bottom:12px;max-width:none}
 }
 </style>
@@ -186,7 +202,7 @@ textarea:focus{border-color:var(--safe)}
    <span>Context playground</span><span class="navbadge">12</span>
   </button>
   <button class="navbtn" data-page="scanner" onclick="goPage('scanner',this)">
-   <span>Code scanner</span><span class="navbadge" id="navScanBadge">35+ rules</span>
+    <span>Code scanner</span><span class="navbadge" id="navScanBadge">31 rules</span>
   </button>
   <button class="navbtn" data-page="csp" onclick="goPage('csp',this)">
    <span>CSP builder</span><span class="navbadge">Level 3</span>
@@ -275,7 +291,7 @@ textarea:focus{border-color:var(--safe)}
 <section id="scanner" class="page">
  <div class="hero">
   <h1>Static Vulnerability & Anti-Pattern Scanner</h1>
-  <p>Paste your function, API route, or script. The scanner uses 35+ security rules covering OWASP Top 10 vulnerabilities across JavaScript, Node.js, Python, PHP, Java, and Go.</p>
+   <p>Paste your function, API route, or script. The scanner uses 31 security rules covering OWASP Top 10 vulnerabilities across JavaScript, Node.js, Python, PHP, Java, and Go.</p>
  </div>
 
  <div class="card">
@@ -293,7 +309,12 @@ textarea:focus{border-color:var(--safe)}
    </div>
   </div>
 
-  <textarea id="scanIn" style="min-height:200px" placeholder="Paste source code here (JS/TS, Python, PHP, Java, Go, Shell)..." oninput="scan()"></textarea>
+  <textarea id="scanIn" style="min-height:200px" placeholder="Paste source code here (JS/TS, Python, PHP, Java, Go, Shell)..." oninput="scheduleScan()"></textarea>
+  <div class="file-drop" id="fileDrop">
+   <label for="scanFile"><b>Scan a local code file</b><br><span>Files stay in this browser and are never uploaded.</span></label>
+   <input id="scanFile" type="file" accept=".js,.jsx,.ts,.tsx,.py,.php,.java,.go,.rb,.rs,.sh,.sql,.json,.html,.css,.txt" onchange="loadSourceFile(event)">
+  </div>
+  <div class="scan-status" id="scanStatus" aria-live="polite"></div>
 
   <div class="scanner-controls">
    <div class="stat-row" style="margin-top:0">
@@ -308,12 +329,25 @@ textarea:focus{border-color:var(--safe)}
     <button class="filter-tab" data-filter="high" onclick="filterFindings('high',this)">High</button>
     <button class="filter-tab" data-filter="medium" onclick="filterFindings('medium',this)">Medium</button>
     <button class="filter-tab" data-filter="low" onclick="filterFindings('low',this)">Low</button>
-    <button class="action-btn" onclick="exportReport()" style="margin-left:6px">📋 Export Markdown Report</button>
+     <button class="action-btn" onclick="exportReport()" style="margin-left:6px">📋 Export Markdown Report</button>
+     <button class="action-btn" onclick="saveCurrentScan()" style="margin-left:6px">💾 Save Scan</button>
+     <button class="action-btn" onclick="clearScannerPreferences()" style="margin-left:6px">Reset Ignored</button>
    </div>
   </div>
  </div>
 
- <div id="scanResults" style="margin-top:16px;display:grid;gap:12px"></div>
+  <div id="scanResults" style="margin-top:16px;display:grid;gap:12px"></div>
+  <div class="card" style="margin-top:16px">
+   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+    <div>
+     <h2>Local Scan History</h2>
+     <div class="sub">Only scan summaries and findings are saved in this browser — source code is never stored.</div>
+    </div>
+    <button class="copybtn" onclick="clearScanHistory()">Clear history</button>
+   </div>
+   <div id="historyList" class="history-list"></div>
+   <div id="historyCompare"></div>
+  </div>
 </section>
 
 <!-- PAGE 3: CSP BUILDER -->
@@ -1090,118 +1124,405 @@ const RULES = [
 
 const SEV_WEIGHT = { high: 3, medium: 2, low: 1 };
 
-let currentFindings = [];
-let activeFilter = 'all';
+ const MAX_SCAN_BYTES = 2 * 1024 * 1024;
+ const HISTORY_KEY = 'sanitize_scan_history_v1';
+ const PREFS_KEY = 'sanitize_scanner_preferences_v1';
+ let allFindings = [];
+ let currentFindings = [];
+ let activeFilter = 'all';
+ let scanTimer = null;
+ let scanSequence = 0;
+ let scanWorker = null;
+ let scanSourceName = 'Pasted code';
+ let ignoredRules = new Set();
+ let ignoredLocations = new Set();
+ let reviewedLocations = new Set();
+ let scanHistory = [];
 
-function scan(){
- const text = $('scanIn').value;
- if(!text.trim()){
-  $('scanCount').textContent = '0';
-  $('scanHighCount').textContent = '0';
-  $('scanMedCount').textContent = '0';
-  $('scanLowCount').textContent = '0';
-  $('scanResults').innerHTML = '';
-  currentFindings = [];
-  return;
- }
-
- const lines = text.split('\n');
- let findings = [];
-
- RULES.forEach(rule => {
-  const flags = rule.re.flags.includes('g') ? rule.re.flags : rule.re.flags + 'g';
-  const re = new RegExp(rule.re.source, flags);
-
-  let m;
-  let guard = 0;
-  while((m = re.exec(text))){
-   const matchIdx = m.index;
-   const lineNo = text.slice(0, matchIdx).split('\n').length;
-   const lineContent = lines[lineNo - 1] || '';
-
-   findings.push({
-    ...rule,
-    line: lineNo,
-    matchedText: m[0],
-    codeSnippet: lineContent
-   });
-
-   if(m[0].length === 0) re.lastIndex++;
-   if(++guard > 500) break;
+ function loadScannerState(){
+  try{
+   const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}');
+   ignoredRules = new Set(Array.isArray(prefs.rules) ? prefs.rules : []);
+   ignoredLocations = new Set(Array.isArray(prefs.locations) ? prefs.locations : []);
+   reviewedLocations = new Set(Array.isArray(prefs.reviewed) ? prefs.reviewed : []);
+   const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+   scanHistory = Array.isArray(history) ? history.slice(0,10) : [];
+  }catch(e){
+   ignoredRules = new Set();
+   ignoredLocations = new Set();
+   reviewedLocations = new Set();
+   scanHistory = [];
   }
- });
-
- findings.sort((a,b) => SEV_WEIGHT[b.sev] - SEV_WEIGHT[a.sev] || a.line - b.line);
- currentFindings = findings;
-
- const high = findings.filter(f=>f.sev==='high').length;
- const med = findings.filter(f=>f.sev==='medium').length;
- const low = findings.filter(f=>f.sev==='low').length;
-
- $('scanCount').textContent = findings.length;
- $('scanHighCount').textContent = high;
- $('scanMedCount').textContent = med;
- $('scanLowCount').textContent = low;
-
- renderFindings();
-}
-
-function filterFindings(sev, btn){
- activeFilter = sev;
- document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
- btn.classList.add('active');
- renderFindings();
-}
-
-function renderFindings(){
- const container = $('scanResults');
- if(!currentFindings.length){
-  container.innerHTML = '<div class="findcard" style="color:var(--muted);text-align:center;padding:24px">No security findings detected with current heuristics. Great work!</div>';
-  return;
  }
 
- const filtered = activeFilter === 'all'
-  ? currentFindings
-  : currentFindings.filter(f => f.sev === activeFilter);
-
- if(!filtered.length){
-  container.innerHTML = `<div class="findcard" style="color:var(--muted);text-align:center;padding:24px">No findings in the <b>${activeFilter}</b> severity tier.</div>`;
-  return;
+ function saveScannerPreferences(){
+  try{
+   localStorage.setItem(PREFS_KEY, JSON.stringify({
+    rules:[...ignoredRules],
+    locations:[...ignoredLocations],
+    reviewed:[...reviewedLocations]
+   }));
+  }catch(e){}
  }
 
- container.innerHTML = filtered.map(f => {
-  const bg = f.sev === 'high' ? 'var(--danger-bg)' : f.sev === 'medium' ? 'var(--warn-bg)' : 'var(--info-bg)';
-  const fg = f.sev === 'high' ? 'var(--danger)' : f.sev === 'medium' ? 'var(--warn)' : 'var(--info)';
+ function saveHistoryState(){
+  try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(scanHistory.slice(0,10))); }catch(e){}
+ }
 
-  let highlightedSnippet = escapeHtml(f.codeSnippet.trim());
-  if(f.matchedText && f.codeSnippet.includes(f.matchedText)){
-   const escapedMatch = escapeHtml(f.matchedText);
-   highlightedSnippet = highlightedSnippet.replace(escapedMatch, `<mark>${escapedMatch}</mark>`);
+ function findingKey(f){
+  return `${f.id}:${f.line}:${f.matchedText || ''}`;
+ }
+
+ function visibleFindings(){
+  return allFindings.filter(f => !ignoredRules.has(f.id) && !ignoredLocations.has(findingKey(f)));
+ }
+
+ function updateScanCounts(){
+  const high = currentFindings.filter(f=>f.sev==='high').length;
+  const med = currentFindings.filter(f=>f.sev==='medium').length;
+  const low = currentFindings.filter(f=>f.sev==='low').length;
+  $('scanCount').textContent = currentFindings.length;
+  $('scanHighCount').textContent = high;
+  $('scanMedCount').textContent = med;
+  $('scanLowCount').textContent = low;
+ }
+
+ function setScanStatus(message){
+  const status = $('scanStatus');
+  if(status) status.textContent = message || '';
+ }
+
+ function scanTextSync(text){
+  const lines = text.split('\n');
+  const findings = [];
+  RULES.forEach(rule => {
+   const flags = rule.re.flags.includes('g') ? rule.re.flags : rule.re.flags + 'g';
+   let re;
+   try{ re = new RegExp(rule.re.source, flags); }catch(e){ return; }
+   let m;
+   let guard = 0;
+   while((m = re.exec(text))){
+    const matchIdx = m.index;
+    findings.push({
+     ...rule,
+     line: text.slice(0, matchIdx).split('\n').length,
+     matchedText: m[0],
+     codeSnippet: lines[text.slice(0, matchIdx).split('\n').length - 1] || ''
+    });
+    if(m[0].length === 0) re.lastIndex++;
+    if(++guard > 500) break;
+   }
+  });
+  return findings.sort((a,b) => SEV_WEIGHT[b.sev] - SEV_WEIGHT[a.sev] || a.line - b.line);
+ }
+
+ function createScanWorker(){
+  if(!window.Worker || !window.Blob || !window.URL) return null;
+  const workerRules = RULES.map(rule => ({
+   id:rule.id, sev:rule.sev, title:rule.title, cat:rule.cat, why:rule.why, fix:rule.fix,
+   source:rule.re.source, flags:rule.re.flags
+  }));
+  const workerSource = [
+   'const RULES = ', JSON.stringify(workerRules), ';',
+   'const WEIGHT = ', JSON.stringify(SEV_WEIGHT), ';',
+   'self.onmessage = function(event){',
+   ' const text = event.data.text, token = event.data.token, lines = text.split("\\n"), findings = [];',
+   ' RULES.forEach(function(rule){',
+   '  let re; try { re = new RegExp(rule.source, rule.flags.includes("g") ? rule.flags : rule.flags + "g"); } catch(e) { return; }',
+   '  let m, guard = 0;',
+   '  while((m = re.exec(text))){',
+   '   const matchIdx = m.index, lineNo = text.slice(0, matchIdx).split("\\n").length;',
+   '   findings.push({id:rule.id, sev:rule.sev, title:rule.title, cat:rule.cat, why:rule.why, fix:rule.fix, line:lineNo, matchedText:m[0], codeSnippet:lines[lineNo - 1] || ""});',
+   '   if(m[0].length === 0) re.lastIndex++;',
+   '   if(++guard > 500) break;',
+   '  }',
+   ' });',
+   ' findings.sort(function(a,b){ return WEIGHT[b.sev] - WEIGHT[a.sev] || a.line - b.line; });',
+   ' self.postMessage({token:token, findings:findings});',
+   '};'
+  ].join('');
+  try{
+   const url = URL.createObjectURL(new Blob([workerSource], {type:'application/javascript'}));
+   const worker = new Worker(url);
+   worker._url = url;
+   worker.onmessage = event => {
+    if(event.data.token !== scanSequence) return;
+    handleScanResult(event.data.findings, true);
+   };
+   worker.onerror = () => {
+    if(scanWorker === worker){
+     scanWorker.terminate();
+     URL.revokeObjectURL(worker._url);
+     scanWorker = null;
+     handleScanResult(scanTextSync($('scanIn').value), false);
+    }
+   };
+   return worker;
+  }catch(e){ return null; }
+ }
+
+ function handleScanResult(findings, usedWorker){
+  allFindings = findings || [];
+  currentFindings = visibleFindings();
+  updateScanCounts();
+  renderFindings();
+  setScanStatus(`Scanned ${$('scanIn').value.length.toLocaleString()} characters${usedWorker ? ' in the background' : ''}.`);
+ }
+
+ function scan(){
+  const text = $('scanIn').value;
+  const token = ++scanSequence;
+  if(!text.trim()){
+   allFindings = [];
+   currentFindings = [];
+   updateScanCounts();
+   $('scanResults').innerHTML = '';
+   setScanStatus('');
+   return;
   }
+  if(new Blob([text]).size > MAX_SCAN_BYTES){
+   allFindings = [];
+   currentFindings = [];
+   updateScanCounts();
+   $('scanResults').innerHTML = '<div class="findcard" style="color:var(--danger);text-align:center;padding:24px">This file is larger than 2 MB. Please scan a smaller file to keep mobile browsers responsive.</div>';
+   setScanStatus('Scan stopped: 2 MB limit reached.');
+   return;
+  }
+  setScanStatus('Scanning locally…');
+  if(!scanWorker) scanWorker = createScanWorker();
+  if(scanWorker){
+   scanWorker.postMessage({text, token});
+  }else{
+   handleScanResult(scanTextSync(text), false);
+  }
+ }
 
-  return `
-  <div class="findcard ${f.sev}">
-   <div class="findhead">
-    <h3>
-     <span>${escapeHtml(f.title)}</span>
-     <span style="font-size:11px;font-family:'IBM Plex Mono';color:var(--muted)">[${f.cat}]</span>
-    </h3>
-    <span class="badge" style="background:${bg};color:${fg}">
-     Line ${f.line} · ${f.sev.toUpperCase()}
-    </span>
-   </div>
-   <p style="color:var(--muted);font-size:13px;margin:6px 0 8px">${escapeHtml(f.why)}</p>
+ function scheduleScan(){
+  clearTimeout(scanTimer);
+  scanTimer = setTimeout(scan, 180);
+ }
 
-   <div class="code-preview">
-    <span class="line-num">${f.line}:</span>${highlightedSnippet}
-   </div>
+ function handleSourceFile(file){
+  if(!file) return;
+  if(file.size > MAX_SCAN_BYTES){
+   showToast('File is larger than 2 MB');
+   setScanStatus('Choose a file smaller than 2 MB.');
+   return;
+  }
+  const reader = new FileReader();
+  setScanStatus(`Reading ${file.name}…`);
+  reader.onload = () => {
+   $('scanIn').value = String(reader.result || '');
+   scanSourceName = file.name;
+   scan();
+  };
+  reader.onerror = () => setScanStatus('Could not read this file.');
+  reader.readAsText(file);
+ }
 
-   <div class="explain" style="margin-top:10px;font-size:12.5px">
-    <b>Recommended Remediation:</b> ${escapeHtml(f.fix)}
-   </div>
-  </div>`;
- }).join('');
-}
+ function loadSourceFile(event){
+  handleSourceFile(event.target.files && event.target.files[0]);
+ }
+
+ function initFileDrop(){
+  const drop = $('fileDrop');
+  if(!drop) return;
+  ['dragenter','dragover'].forEach(name => drop.addEventListener(name, event => {
+   event.preventDefault();
+   drop.classList.add('dragover');
+  }));
+  ['dragleave','drop'].forEach(name => drop.addEventListener(name, event => {
+   event.preventDefault();
+   drop.classList.remove('dragover');
+  }));
+  drop.addEventListener('drop', event => handleSourceFile(event.dataTransfer.files && event.dataTransfer.files[0]));
+ }
+
+ function filterFindings(sev, btn){
+  activeFilter = sev;
+  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderFindings();
+ }
+
+ function focusFinding(index){
+  const f = allFindings[index];
+  const input = $('scanIn');
+  if(!f || !input) return;
+  const text = input.value;
+  const linesBefore = text.split('\n').slice(0, f.line - 1);
+  const lineStart = linesBefore.reduce((total, line) => total + line.length + 1, 0);
+  const matchStart = f.matchedText ? text.indexOf(f.matchedText, lineStart) : -1;
+  const start = matchStart >= lineStart && matchStart < text.indexOf('\n', lineStart) + 1 ? matchStart : lineStart;
+  input.focus();
+  input.setSelectionRange(start, Math.min(text.length, start + (f.matchedText || '').length));
+  const lineHeight = parseFloat(getComputedStyle(input).lineHeight) || 20;
+  input.scrollTop = Math.max(0, (f.line - 2) * lineHeight);
+ }
+
+ function ignoreRule(index){
+  const f = allFindings[index];
+  if(!f) return;
+  ignoredRules.add(f.id);
+  saveScannerPreferences();
+  currentFindings = visibleFindings();
+  updateScanCounts();
+  renderFindings();
+  showToast(`Ignored rule: ${f.id}`);
+ }
+
+ function ignoreFinding(index){
+  const f = allFindings[index];
+  if(!f) return;
+  ignoredLocations.add(findingKey(f));
+  saveScannerPreferences();
+  currentFindings = visibleFindings();
+  updateScanCounts();
+  renderFindings();
+  showToast('Ignored this finding location');
+ }
+
+ function toggleReviewed(index){
+  const f = allFindings[index];
+  if(!f) return;
+  const key = findingKey(f);
+  if(reviewedLocations.has(key)) reviewedLocations.delete(key);
+  else reviewedLocations.add(key);
+  saveScannerPreferences();
+  renderFindings();
+ }
+
+ function clearScannerPreferences(){
+  ignoredRules.clear();
+  ignoredLocations.clear();
+  reviewedLocations.clear();
+  saveScannerPreferences();
+  currentFindings = visibleFindings();
+  updateScanCounts();
+  renderFindings();
+  showToast('Ignored and reviewed states reset');
+ }
+
+ function renderFindings(){
+  const container = $('scanResults');
+  if(!currentFindings.length){
+   container.innerHTML = allFindings.length
+    ? '<div class="findcard" style="color:var(--muted);text-align:center;padding:24px">All findings are hidden by your ignore settings. Use “Reset Ignored” to show them again.</div>'
+    : '<div class="findcard" style="color:var(--muted);text-align:center;padding:24px">No security findings detected with current heuristics. Great work!</div>';
+   return;
+  }
+ 
+  const filtered = activeFilter === 'all'
+   ? currentFindings
+   : currentFindings.filter(f => f.sev === activeFilter);
+ 
+  if(!filtered.length){
+   container.innerHTML = `<div class="findcard" style="color:var(--muted);text-align:center;padding:24px">No findings in the <b>${activeFilter}</b> severity tier.</div>`;
+   return;
+  }
+ 
+  container.innerHTML = filtered.map(f => {
+   const bg = f.sev === 'high' ? 'var(--danger-bg)' : f.sev === 'medium' ? 'var(--warn-bg)' : 'var(--info-bg)';
+   const fg = f.sev === 'high' ? 'var(--danger)' : f.sev === 'medium' ? 'var(--warn)' : 'var(--info)';
+   const index = allFindings.indexOf(f);
+   const reviewed = reviewedLocations.has(findingKey(f));
+ 
+   let highlightedSnippet = escapeHtml(f.codeSnippet.trim());
+   if(f.matchedText && f.codeSnippet.includes(f.matchedText)){
+    const escapedMatch = escapeHtml(f.matchedText);
+    highlightedSnippet = highlightedSnippet.replace(escapedMatch, `<mark>${escapedMatch}</mark>`);
+   }
+ 
+   return `
+   <div class="findcard ${f.sev}${reviewed ? ' reviewed' : ''}">
+    <div class="findhead">
+     <h3>
+      <span>${escapeHtml(f.title)}</span>
+      <span style="font-size:11px;font-family:'IBM Plex Mono';color:var(--muted)">[${escapeHtml(f.cat)}]</span>
+     </h3>
+     <span class="badge" style="background:${bg};color:${fg}">
+      Line ${f.line} · ${f.sev.toUpperCase()}
+     </span>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin:6px 0 8px">${escapeHtml(f.why)}</p>
+ 
+    <div class="code-preview">
+     <span class="line-num">${f.line}:</span>${highlightedSnippet}
+    </div>
+ 
+    <div class="explain" style="margin-top:10px;font-size:12.5px">
+     <b>Recommended Remediation:</b> ${escapeHtml(f.fix)}
+    </div>
+    <div class="finding-actions">
+     <button class="action-btn" onclick="focusFinding(${index})">Jump to line</button>
+     <button class="action-btn" onclick="ignoreRule(${index})">Ignore rule</button>
+     <button class="action-btn" onclick="ignoreFinding(${index})">Ignore line</button>
+     <button class="action-btn" onclick="toggleReviewed(${index})">${reviewed ? 'Unmark reviewed' : 'Mark reviewed'}</button>
+     ${reviewed ? '<span class="reviewed-label">✓ Reviewed</span>' : ''}
+    </div>
+   </div>`;
+  }).join('');
+ }
+
+ function renderHistory(){
+  const list = $('historyList');
+  if(!list) return;
+  if(!scanHistory.length){
+   list.innerHTML = '<div class="history-meta">No saved scans yet. Use “Save Scan” after running a scan.</div>';
+   return;
+  }
+  list.innerHTML = scanHistory.map((item, index) => {
+   const date = new Date(item.at);
+   const label = Number.isNaN(date.getTime()) ? item.at : date.toLocaleString();
+   return `<div class="history-item">
+    <div class="history-meta"><b>${escapeHtml(item.name || 'Saved scan')}</b><br>${escapeHtml(label)} · ${Number(item.length || 0).toLocaleString()} characters · ${item.findings.length} findings</div>
+    <button class="copybtn" onclick="compareHistory(${index})">Compare with current</button>
+   </div>`;
+  }).join('');
+ }
+
+ function saveCurrentScan(){
+  const text = $('scanIn').value;
+  if(!text.trim()){
+   showToast('Nothing to save');
+   return;
+  }
+  const snapshot = allFindings.map(f => ({
+   id:f.id, sev:f.sev, title:f.title, cat:f.cat, why:f.why, fix:f.fix,
+   line:f.line, matchedText:f.matchedText, codeSnippet:f.codeSnippet
+  }));
+  scanHistory.unshift({
+   at:new Date().toISOString(),
+   name:scanSourceName,
+   length:text.length,
+   findings:snapshot
+  });
+  scanHistory = scanHistory.slice(0,10);
+  saveHistoryState();
+  renderHistory();
+  showToast('Scan saved locally');
+ }
+
+ function compareHistory(index){
+  const old = scanHistory[index];
+  if(!old) return;
+  const oldKeys = new Set((old.findings || []).map(f => findingKey(f)));
+  const newKeys = new Set(allFindings.map(f => findingKey(f)));
+  const added = [...newKeys].filter(key => !oldKeys.has(key)).length;
+  const fixed = [...oldKeys].filter(key => !newKeys.has(key)).length;
+  const same = [...newKeys].filter(key => oldKeys.has(key)).length;
+  $('historyCompare').innerHTML = `<div class="compare-box"><b>Comparison with ${escapeHtml(old.name || 'saved scan')}</b><br>New findings: <b>${added}</b> · Fixed findings: <b>${fixed}</b> · Still present: <b>${same}</b></div>`;
+ }
+
+ function clearScanHistory(){
+  if(!scanHistory.length) return;
+  if(!window.confirm('Clear all saved scan summaries from this browser?')) return;
+  scanHistory = [];
+  saveHistoryState();
+  renderHistory();
+  $('historyCompare').innerHTML = '';
+  showToast('Scan history cleared');
+ }
 
 function exportReport(){
  if(!currentFindings.length){
@@ -1740,6 +2061,9 @@ buildRef();
 buildFrameworks();
 buildCspUI();
 buildCSP();
+ loadScannerState();
+ initFileDrop();
+ renderHistory();
 renderQuiz();
 </script>
 </body>
