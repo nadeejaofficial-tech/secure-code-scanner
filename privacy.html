@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy - Sanitize Secure Code Scanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+ --bg:#eef1ea;--paper:#fffdf9;--paper2:#f6f3ec;--line:#d9ddce;
+ --ink:#22301f;--muted:#647063;--safe:#2f6f5e;--safe-bg:#e5f0e9;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Public Sans",system-ui,sans-serif;}
+.container{max-width:800px;margin:40px auto;padding:32px 28px;background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.04)}
+h1,h2,h3{font-family:"Fraunces",serif;color:var(--ink);margin-top:24px;margin-bottom:10px}
+h1{font-size:28px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-top:0}
+h2{font-size:18px}
+p,li{color:#3c4a37;font-size:14px}
+ul{padding-left:20px}
+code{font-family:"IBM Plex Mono",monospace;background:var(--paper2);padding:2px 5px;border-radius:4px;font-size:13px}
+.back-btn{display:inline-block;margin-bottom:20px;color:var(--safe);text-decoration:none;font-weight:600;font-size:13px}
+.back-btn:hover{text-decoration:underline}
+.highlight-box{background:var(--safe-bg);border-left:4px solid var(--safe);padding:12px 16px;border-radius:6px;margin:16px 0}
+footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+
+<div class="container">
+ <a href="/" class="back-btn">← Back to Secure Code Scanner</a>
+ 
+ <h1>Privacy Policy</h1>
+ <p><b>Effective Date:</b> September 2026<br>
+ <b>Website:</b> <a href="https://iosecure-code-scanner.site/" style="color:var(--safe)">https://iosecure-code-scanner.site/</a></p>
+
+ <div class="highlight-box">
+  <b>Core Privacy Commitment:</b> All source code analysis, heuristic pattern scanning, and input defense transformations are executed <b>100% locally in your web browser</b>. No source code, text snippets, or user-provided parameters are ever transmitted to or stored on any server.
+ </div>
+
+ <h2>1. Code & Input Data Security</h2>
+ <p>Sanitize operates entirely on client-side JavaScript and browser Web Workers. When you paste or upload code files into the scanner:</p>
+ <ul>
+  <li>Your code is processed in volatile browser memory on your device.</li>
+  <li>No code data is sent over the network to our servers or any third party.</li>
+  <li>Closing or refreshing the browser tab instantly clears all unsaved in-memory content.</li>
+ </ul>
+
+ <h2>2. Browser Local Storage</h2>
+ <p>We use your browser's <code>localStorage</code> purely to remember your personal interface preferences and voluntary scan summaries:</p>
+ <ul>
+  <li><b>Saved Scan Summaries:</b> If you explicitly click "Save Scan", only metadata (timestamp, character count, and finding titles) is stored locally. Raw source code is never saved.</li>
+  <li><b>Scanner Preferences:</b> Dismissed rules or ignored findings are saved locally so they remain hidden on your next visit.</li>
+ </ul>
+ <p>You can clear this data at any time via the "Reset Ignored" / "Clear History" buttons or your browser's site data settings.</p>
+
+ <h2>3. Third-Party Analytics & Cookies</h2>
+ <p>We use <b>Google Analytics</b> (Google tag) to understand aggregate, non-personally identifiable usage metrics (such as visitor counts, device types, and general geographical region). Google Analytics may place cookies on your device to collect standard internet log data.</p>
+ <p>You can opt out of Google Analytics tracking by installing the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener" style="color:var(--safe)">Google Analytics Opt-out Browser Add-on</a>.</p>
+
+ <h2>4. Advertising Partners</h2>
+ <p>We may display advertisements provided by third-party advertising partners (such as Google AdSense or Monetag). These ad networks may use cookies, JavaScript, or web beacons to serve ads based on prior visits to this or other websites.</p>
+ <ul>
+  <li>Third-party ad vendors automatically receive your IP address when ad requests occur.</li>
+  <li>Users may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener" style="color:var(--safe)">Google Ad Settings</a> or <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener" style="color:var(--safe)">aboutads.info</a>.</li>
+ </ul>
+
+ <h2>5. Children's Information (COPPA)</h2>
+ <p>Our utility does not knowingly collect any personal information from children under the age of 13. If you believe your child has provided personal information, please contact us and we will promptly delete it.</p>
+
+ <h2>6. Contact Information</h2>
+ <p>If you have any questions regarding this Privacy Policy, you can reach out via:</p>
+ <ul>
+  <li><b>Developer:</b> Nadeeja</li>
+  <li><b>LinkedIn:</b> <a href="https://www.linkedin.com/in/nadeeja-hirun/" target="_blank" rel="noopener" style="color:var(--safe)">linkedin.com/in/nadeeja-hirun</a></li>
+  <li><b>Facebook:</b> <a href="https://web.facebook.com/nadeeja.hirun.2025" target="_blank" rel="noopener" style="color:var(--safe)">facebook.com/nadeeja.hirun.2025</a></li>
+ </ul>
+
+ <footer>
+  &copy; 2026 Sanitize. All rights reserved. Runs 100% client-side.
+ </footer>
+</div>
+
+</body>
+</html>
