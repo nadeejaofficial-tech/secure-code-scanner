@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cybersecurity Blog - Sanitize Secure Code Scanner</title>
+<meta name="description" content="Insights on Blue Team operations, SOC analysis, and web application vulnerability defense strategies.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+ --bg:#eef1ea;--paper:#fffdf9;--paper2:#f6f3ec;--line:#d9ddce;
+ --ink:#22301f;--muted:#647063;--safe:#2f6f5e;--safe-bg:#e5f0e9;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Public Sans",system-ui,sans-serif;}
+.container{max-width:850px;margin:40px auto;padding:40px;background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.04)}
+.header{border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:30px;display:flex;justify-content:space-between;align-items:baseline}
+.header h1{font-family:"Fraunces",serif;font-size:32px;margin:0;color:var(--ink)}
+.back-btn{color:var(--safe);text-decoration:none;font-weight:600;font-size:14px;background:var(--safe-bg);padding:8px 16px;border-radius:8px;}
+.back-btn:hover{background:#d5e5db}
+article{margin-bottom:50px;padding-bottom:40px;border-bottom:1px solid var(--line)}
+article:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+article h2{font-family:"Fraunces",serif;font-size:26px;margin:0 0 10px 0;color:var(--ink)}
+.meta{font-size:13px;color:var(--muted);margin-bottom:20px;font-family:"IBM Plex Mono",monospace}
+.meta span{background:var(--paper2);padding:4px 8px;border-radius:4px;margin-right:10px}
+p{color:#3c4a37;margin-bottom:18px}
+h3{font-family:"Public Sans";font-size:18px;margin:25px 0 10px 0}
+footer{margin-top:40px;text-align:center;font-size:13px;color:var(--muted)}
+@media(max-width:600px){ .container{margin:15px;padding:20px;} .header{flex-direction:column;gap:15px;} }
+</style>
+</head>
+<body>
+
+<div class="container">
+ <div class="header">
+  <h1>Security Blog</h1>
+  <a href="/" class="back-btn">← Back to Scanner</a>
+ </div>
+
+ <article>
+  <h2>The Shift Left: Why Client-Side Code Scanning is Essential for Blue Teams</h2>
+  <div class="meta"><span>Security Operations</span><span>AppSec</span><span>Sep 2026</span></div>
+  <p>In modern web development, the boundary between the client and server is increasingly blurred. As a Blue Team analyst or SOC operator, understanding where vulnerabilities are introduced is critical. Traditional Static Application Security Testing (SAST) tools often require heavy server-side processing or CI/CD pipeline integration, which can slow down rapid development cycles.</p>
+  <p>This is where client-side code scanning becomes a game-changer. By executing heuristic regex and abstract syntax tree (AST) pattern matching directly in the browser, developers can identify Cross-Site Scripting (XSS), insecure DOM manipulation (like unescaped innerHTML), and hardcoded secrets instantly. It brings security directly to the developer's workspace without compromising the privacy of proprietary code.</p>
+  <h3>Context-Aware Defense is Key</h3>
+  <p>A major focus of our internal testing environments is understanding context. An XSS payload designed to break out of an HTML attribute requires a completely different sanitization approach than a payload injected into a JavaScript execution block. Utilizing browser-based tools to map these contexts dynamically helps train the security mindset required to defend complex web ecosystems.</p>
+ </article>
+
+ <article>
+  <h2>Beyond Escaping: The True Defense Against SQL Injection</h2>
+  <div class="meta"><span>Database Security</span><span>Vulnerability Management</span><span>Aug 2026</span></div>
+  <p>Despite being one of the oldest web vulnerabilities, SQL Injection (SQLi) consistently appears on the OWASP Top 10 list. A common misconception among junior developers is that simply escaping quotation marks is enough to secure a database query. However, escaping is inherently flawed.</p>
+  <p>When user input is directly concatenated into a SQL statement, attackers can often bypass basic character filtering using encoding tricks, alternative injection vectors (like numeric fields that don't require quotes), or comment sequences (e.g., '-- or /*). For example, an attacker injecting into an unquoted integer parameter can execute unauthorized UNION SELECT queries regardless of how strictly quotes are filtered.</p>
+  <h3>The Architecture of Parameterized Queries</h3>
+  <p>The only robust, foolproof defense against SQLi is the use of Parameterized Queries (Prepared Statements). By utilizing parameter binding, the database driver ensures that user input is treated strictly as literal data, never as executable SQL syntax. The query structure is pre-compiled before the data is ever inserted, neutralizing any malicious commands entirely. Secure code reviewing must prioritize identifying raw string concatenation in database execution functions.</p>
+ </article>
+
+ <article>
+  <h2>From Labs to Real-World SOC: Analyzing Malicious Traffic</h2>
+  <div class="meta"><span>Network Defense</span><span>Traffic Analysis</span><span>Aug 2026</span></div>
+  <p>Transitioning from simulated environments to practical Security Operations Center (SOC) analysis requires a deep understanding of network traffic behavior. Attackers rarely strike without leaving a footprint. Recognizing the digital exhaust of reconnaissance tools is a fundamental skill for any defensive security professional.</p>
+  <p>When threat actors use tools like Gobuster, Wfuzz, or ffuf for directory fuzzing and forced browsing, they generate massive amounts of anomalous HTTP GET requests. Analyzing these patterns in traffic capture tools like Wireshark reveals distinctive signatures: high request rates from a single IP, sequential 404 Not Found errors, and predictable User-Agent strings. </p>
+  <h3>Proactive Incident Response</h3>
+  <p>A mature Blue Team doesn't just block IPs; they analyze the attack context. Did the aggressive Nmap port scan precede a targeted web application attack? By correlating logs and utilizing tools that parse raw PCAP data, analysts can reconstruct the attack chain. Building custom scripts to identify these indicators of compromise (IoCs) quickly enables a SOC to respond to threats before lateral movement occurs inside the network.</p>
+ </article>
+
+ <footer>
+  &copy; 2026 Sanitize Secure Code Scanner. Built for the InfoSec Community.
+ </footer>
+</div>
+
+</body>
+</html>
