@@ -444,19 +444,32 @@ textarea:focus{border-color:var(--safe)}
  </p>
  <div class="refgrid" id="frameworkgrid"></div>
 </section>
-<!-- AdSense SEO Content Section -->
+<!-- AdSense SEO Content Section & Security Articles -->
 <section style="margin-top: 40px; padding-top: 30px; border-top: 1px solid var(--line);">
-  <h2 style="font-size: 22px; margin-bottom: 12px;">What is Sanitize - Secure Code Scanner?</h2>
-  <p style="margin-bottom: 20px; line-height: 1.7;">Sanitize is a comprehensive, client-side static vulnerability scanner designed for modern web developers and Blue Team security analysts. It allows you to analyze source code for common security flaws, including Cross-Site Scripting (XSS), SQL Injection (SQLi), Path Traversal, and Command Injection without ever sending your sensitive code to an external server. By running entirely in your browser, it ensures 100% data privacy and instant feedback.</p>
+  <h2 style="font-size: 24px; margin-bottom: 16px; font-family: 'Fraunces', serif;">Cybersecurity Blog & Educational Resources</h2>
 
-  <h2 style="font-size: 22px; margin-bottom: 12px;">How Does Our Client-Side Security Tool Work?</h2>
-  <p style="margin-bottom: 20px; line-height: 1.7;">Unlike traditional Static Application Security Testing (SAST) tools that require heavy desktop installations or cloud uploads, our browser-based scanner utilizes advanced JavaScript heuristic regex patterns and AST-like evaluations directly in your local environment. It features over 30 built-in security rules covering OWASP Top 10 vulnerabilities across JavaScript, Python, PHP, Java, and Go.</p>
+  <article style="margin-bottom: 30px;">
+    <h3 style="font-size: 19px; margin-bottom: 10px; color: var(--ink);">1. The Shift Left: Why Client-Side Code Scanning is Essential for Blue Teams</h3>
+    <p style="margin-bottom: 15px; line-height: 1.7;">In modern web development, the boundary between the client and server is increasingly blurred. As a Blue Team analyst or SOC operator, understanding where vulnerabilities are introduced is critical. Traditional Static Application Security Testing (SAST) tools often require heavy server-side processing or CI/CD pipeline integration, which can slow down rapid development cycles.</p>
+    <p style="margin-bottom: 15px; line-height: 1.7;">This is where client-side code scanning becomes a game-changer. By executing heuristic regex and abstract syntax tree (AST) pattern matching directly in the browser, developers can identify Cross-Site Scripting (XSS), insecure DOM manipulation (like unescaped innerHTML), and hardcoded secrets instantly. It brings security directly to the developer's workspace without compromising the privacy of proprietary code.</p>
+  </article>
 
-  <h2 style="font-size: 22px; margin-bottom: 12px;">Generate Content-Security-Policy (CSP) Headers</h2>
-  <p style="margin-bottom: 20px; line-height: 1.7;">Beyond static code analysis, Sanitize includes a robust Content-Security-Policy (CSP) Architect. Web application security relies heavily on correctly configured HTTP response headers. Our tool helps you generate production-hardened, Level 3 CSP headers tailored to your specific application architecture, effectively mitigating XSS attacks, data exfiltration attempts, and UI redressing (clickjacking).</p>
+  <article style="margin-bottom: 30px;">
+    <h3 style="font-size: 19px; margin-bottom: 10px; color: var(--ink);">2. Beyond Escaping: The True Defense Against SQL Injection</h3>
+    <p style="margin-bottom: 15px; line-height: 1.7;">Despite being one of the oldest web vulnerabilities, SQL Injection (SQLi) consistently appears on the OWASP Top 10 list. A common misconception among junior developers is that simply escaping quotation marks is enough to secure a database query. However, escaping is inherently flawed.</p>
+    <p style="margin-bottom: 15px; line-height: 1.7;">When user input is directly concatenated into a SQL statement, attackers can often bypass basic character filtering using encoding tricks, alternative injection vectors (like numeric fields that don't require quotes), or comment sequences (e.g., '-- or /*). For example, an attacker injecting into an unquoted integer parameter can execute unauthorized UNION SELECT queries regardless of how strictly quotes are filtered. The only robust, foolproof defense against SQLi is the use of Parameterized Queries (Prepared Statements).</p>
+  </article>
 
-  <h2 style="font-size: 22px; margin-bottom: 12px;">Educational Cybersecurity Resources</h2>
-  <p style="margin-bottom: 20px; line-height: 1.7;">Whether you are learning defensive security concepts or actively working in a Security Operations Center (SOC), understanding sink contexts is crucial. Our Context Playground dynamically demonstrates how the same untrusted payload requires vastly different sanitization methods depending on whether it lands in an HTML body, a JavaScript string, or a SQL database query.</p>
+  <article style="margin-bottom: 30px;">
+    <h3 style="font-size: 19px; margin-bottom: 10px; color: var(--ink);">3. From Labs to Real-World SOC: Analyzing Malicious Traffic</h3>
+    <p style="margin-bottom: 15px; line-height: 1.7;">Transitioning from simulated environments to practical Security Operations Center (SOC) analysis requires a deep understanding of network traffic behavior. Attackers rarely strike without leaving a footprint. Recognizing the digital exhaust of reconnaissance tools is a fundamental skill for any defensive security professional.</p>
+    <p style="margin-bottom: 15px; line-height: 1.7;">When threat actors use tools like Gobuster, Wfuzz, or ffuf for directory fuzzing and forced browsing, they generate massive amounts of anomalous HTTP GET requests. Analyzing these patterns in traffic capture tools like Wireshark reveals distinctive signatures: high request rates from a single IP, sequential 404 Not Found errors, and predictable User-Agent strings. By correlating logs and utilizing tools that parse raw PCAP data, analysts can reconstruct the attack chain and block threats early.</p>
+  </article>
+  
+  <article>
+    <h3 style="font-size: 19px; margin-bottom: 10px; color: var(--ink);">4. Generate Content-Security-Policy (CSP) Headers</h3>
+    <p style="margin-bottom: 15px; line-height: 1.7;">Beyond static code analysis, Sanitize includes a robust Content-Security-Policy (CSP) Architect. Web application security relies heavily on correctly configured HTTP response headers. Our tool helps you generate production-hardened, Level 3 CSP headers tailored to your specific application architecture, effectively mitigating XSS attacks, data exfiltration attempts, and UI redressing (clickjacking). Understanding sink contexts is crucial—our Context Playground dynamically demonstrates how the same untrusted payload requires vastly different sanitization methods depending on whether it lands in an HTML body, a JavaScript string, or a SQL database query.</p>
+  </article>
 </section>
 </main>
 </div>
